@@ -1,0 +1,15 @@
+{
+  "name": "phere",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "esbuild src/main.ts --bundle --servedir=./www/ --outdir=./www/js",
+    "build": "esbuild src/main.ts --bundle --minify --outdir=./www/js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}
