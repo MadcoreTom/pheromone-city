@@ -33,9 +33,10 @@ function render(state: State) {
     const GREEN: Metric = "unemployment";
 
     state.map.forEach((x, y, v) => {
-        const r = (Math.abs(v.buffers[state.readBuffer][RED]) * 5) % 255;
-        const g = v.buffers[state.readBuffer][GREEN]*255;
+        const r =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
+        const g =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
         const b = v.type == TileType.ROAD ? 64 * 3 : 64;
+        x == 7 && y == 15 && Math.random()<0.1 && console.log( `rgb(${r},${g},${b})`,v.buffers[state.readBuffer][GREEN]);
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
     });
@@ -51,5 +52,5 @@ window.requestAnimationFrame(tick);
 
 canvas.addEventListener("click", (evt) => {
   console.log("click", Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE));
-  state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), console.log);
+  state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), v=>console.log(JSON.stringify(v)));
 });

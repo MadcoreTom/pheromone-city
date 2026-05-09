@@ -23,12 +23,12 @@ export const BLANK_TILE: Tile = {
     type: TileType.GRASS,
     buffers: [
         {
-            unemployment: 0,
-            housing: 0
+            unemployment: -999,
+            housing: -999
         },
         {
-            unemployment: 0,
-            housing: 0
+            unemployment: -999,
+            housing: -999
         }
     ]
 };
@@ -50,12 +50,12 @@ export function initState(): State {
                 type: TileType.GRASS,
                 buffers: [
                     {
-                        unemployment: 0,
-                        housing: 0
+                        unemployment: -999,
+                        housing: -999
                     },
                     {
-                        unemployment: 0,
-                        housing: 0
+                        unemployment: -999,
+                        housing: -999
                     }
                 ]
             };
@@ -65,6 +65,7 @@ export function initState(): State {
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
     state.map.forEachRange(2, 8, 9, 9, (x, y, v) => (v.type = TileType.ROAD));
     state.map.forEachRange(2, 6, 13, 7, (x, y, v) => (v.type = TileType.ROAD));
+    state.map.forEachRange(4, 10, 19, 11, (x, y, v) => (v.type = TileType.ROAD));
     state.map.forEachRange(8, 4, 9, 19, (x, y, v) => (v.type = TileType.ROAD));
     state.map.forEachRange(5, 15, 12, 16, (x, y, v) => (v.type = TileType.ROAD));
 

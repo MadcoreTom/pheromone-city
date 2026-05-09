@@ -21,24 +21,8 @@ export function blur(state: State) {
                 return;
             }
             const n = [l, u, r, d].map((q) => q.buffers[readBuffer]);
-
-            // TODO I bet i can do better than just repeating this section for every metric
-            // TODO maybe average -1 is a better approach
-            // let a = Math.max(...n.map((nn) => nn.unemployment));
-            // v.buffers[writeBuffer].unemployment = Math.max(
-            //     v.buffers[readBuffer].unemployment - 1,
-            //     a - 1
-            // );
-
-            // take the highest neighbout (including self) minus 1
-            v.buffers[writeBuffer].unemployment = Math.max(d.buffers[readBuffer].unemployment, ... n.map(nn=>nn.unemployment)) - 1;
-            v.buffers[writeBuffer].housing      = Math.max(d.buffers[readBuffer].housing, ... n.map(nn=>nn.housing)) - 1;
-
-            // a = Math.max(...n.map((nn) => nn.housing));
-            // v.buffers[writeBuffer].housing = Math.max(
-            //     v.buffers[readBuffer].housing - 1,
-            //     a - 1
-            // );
+            v.buffers[writeBuffer].unemployment = n.reduce((x, y) => Math.max(x, y.unemployment), v.buffers[readBuffer].unemployment) - 1;
+            v.buffers[writeBuffer].housing = n.reduce((x, y) => Math.max(x, y.housing), v.buffers[readBuffer].housing) - 1;
         }
     );
 }
