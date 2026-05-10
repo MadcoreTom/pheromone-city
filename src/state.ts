@@ -72,6 +72,7 @@ export function initState(): State {
         buildings: [
             new StandardBuilding(6, 15, 2, "unemployment", "housing"),
             new StandardBuilding(11, 15, 2, "unemployment", "housing"),
+            new StandardBuilding(18, 10, 1, "housing", "unemployment"),
             new StandardBuilding(2, 3, 3, "housing", "unemployment"),
             new StandardBuilding(8, 4, 1, "housing", "unemployment")
         ]

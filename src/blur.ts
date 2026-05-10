@@ -20,9 +20,15 @@ export function blur(state: State) {
             if (v.type != TileType.ROAD) {
                 return;
             }
-            const n = [l, u, r, d].map((q) => q.buffers[readBuffer]);
-            v.buffers[writeBuffer].unemployment = n.reduce((x, y) => Math.max(x, y.unemployment), v.buffers[readBuffer].unemployment) - 1;
-            v.buffers[writeBuffer].housing = n.reduce((x, y) => Math.max(x, y.housing), v.buffers[readBuffer].housing) - 1;
+            const lv = l.buffers[readBuffer];
+            const uv = u.buffers[readBuffer];
+            const rv = r.buffers[readBuffer];
+            const dv = d.buffers[readBuffer];
+            const cur = v.buffers[readBuffer];
+            v.buffers[writeBuffer].unemployment =
+                Math.max(cur.unemployment, lv.unemployment, uv.unemployment, rv.unemployment, dv.unemployment) - 1;
+            v.buffers[writeBuffer].housing =
+                Math.max(cur.housing, lv.housing, uv.housing, rv.housing, dv.housing) - 1;
         }
     );
 }
