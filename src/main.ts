@@ -1,5 +1,7 @@
 import { blur } from "./blur";
+import { Car } from "./car";
 import { initState, Metric, State, TileType } from "./state";
+import { ALL_TOOLS } from "./tools";
 
 console.log("Hello main");
 
@@ -72,6 +74,28 @@ function tick(time: number) {
 window.requestAnimationFrame(tick);
 
 canvas.addEventListener("click", (evt) => {
-  console.log("click", Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE));
-  state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), v=>console.log(JSON.stringify(v)));
+    const x = Math.floor(evt.offsetX / SCALE);
+    const y = Math.floor(evt.offsetY / SCALE);
+    console.log("click", x, y);
+    //   state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), v=>console.log(JSON.stringify(v)));
+    // state.cars.push(new Car(x+0.5,y+0.5,"housing"));
+    if(state.tool){
+        state.tool.onClick(state, x, y);
+    }
 });
+
+
+function initTools(state:State){
+    const div = document.getElementById("tools") as HTMLDivElement;
+    const toolButtons = ALL_TOOLS.map(t=>{
+        const b = document.createElement("button");
+        b.innerText = t.name;
+        b.addEventListener("click", ()=>{
+            console.log("Selected tool", t.name);
+            state.tool = t;
+        });
+        return b;
+    });
+    toolButtons.forEach(t=>div.appendChild(t));
+}
+initTools(state);

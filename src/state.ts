@@ -1,6 +1,7 @@
 import { Arr2 } from "./arr2";
 import { Building, StandardBuilding } from "./building";
 import { Car } from "./car";
+import { Tool } from "./tools";
 
 export enum TileType {
     ROAD,
@@ -41,6 +42,7 @@ export type State = {
     readBuffer: 0 | 1
     cars: Car[];
     buildings: Building[];
+    tool?: Tool;
 };
 
 export function initState(): State {
