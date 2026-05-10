@@ -64,6 +64,12 @@ function render(state: State) {
         ctx.fillText(c.getText(), c.x * SCALE, c.y * SCALE);
     });
 
+    // zones
+     ctx.strokeStyle = "yellow";
+    state.zones.forEach((z) => {
+        ctx.strokeRect(z.x * SCALE, z.y * SCALE, z.w*SCALE, z.h*SCALE);
+    });
+
 }
 
 function tick(time: number) {

@@ -2,6 +2,7 @@ import { Arr2 } from "./arr2";
 import { Building, StandardBuilding } from "./building";
 import { Car } from "./car";
 import { Tool } from "./tools";
+import { Zone } from "./zone";
 
 export enum TileType {
     ROAD,
@@ -20,6 +21,7 @@ export type TileBuffers = [TileBuffer, TileBuffer];
 export type Tile = {
     type: TileType;
     buffers: TileBuffers;
+    zone?: Zone;
 };
 
 export const BLANK_TILE: Tile = {
@@ -43,6 +45,7 @@ export type State = {
     cars: Car[];
     buildings: Building[];
     tool?: Tool;
+    zones: Zone[]
 };
 
 export function initState(): State {
@@ -77,7 +80,8 @@ export function initState(): State {
             new StandardBuilding(18, 10, 1, "housing", "unemployment"),
             new StandardBuilding(2, 3, 3, "housing", "unemployment"),
             new StandardBuilding(8, 4, 1, "housing", "unemployment")
-        ]
+        ],
+        zones: [        ]
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
@@ -86,6 +90,8 @@ export function initState(): State {
     state.map.forEachRange(4, 10, 19, 11, (x, y, v) => (v.type = TileType.ROAD));
     state.map.forEachRange(8, 4, 9, 19, (x, y, v) => (v.type = TileType.ROAD));
     state.map.forEachRange(5, 15, 12, 16, (x, y, v) => (v.type = TileType.ROAD));
+
+    state.zones.push(new Zone(1, 9, 3, 3, state));
 
     return state;
 }

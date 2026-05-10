@@ -1,5 +1,6 @@
 import { Car } from "./car";
 import { State, TileType } from "./state";
+import { Zone } from "./zone";
 
 export abstract class Tool {
     public constructor(public readonly name: string) {
@@ -53,4 +54,14 @@ class CarTool extends Tool {
         });
     }
 }
-export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool()];
+class ZoneTool extends Tool {
+    public constructor() {
+        super("Zone Test");
+    }
+
+    public onClick(state: State, x: number, y: number) {
+        // TODO test for collisions first
+        new Zone(x,y,3,3,state);
+    }
+}
+export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool()];
