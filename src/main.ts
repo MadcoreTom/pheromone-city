@@ -17,13 +17,17 @@ function update(state: State, time: number) {
     // Swap buffers
     [state.readBuffer, state.writeBuffer] = [state.writeBuffer, state.readBuffer];
     blur(state);
-    state.map.getIf(2,2,v=>v.buffers[state.writeBuffer].housing = 0); // we should see this value blur
-    state.map.getIf(5,15,v=>v.buffers[state.writeBuffer].unemployment = 1); // we should see this value blur
+    // state.map.getIf(2,2,v=>v.buffers[state.writeBuffer].housing = 0); // we should see this value blur
+    // state.map.getIf(5,15,v=>v.buffers[state.writeBuffer].unemployment = 1); // we should see this value blur
   
     // TODO stuff
-    
-    //   state.cars = state.cars.filter((c) => !c.dead);
-    //   state.cars.forEach((c) => c.update(readBuffer, state));
+    // Buidlings
+    state.buildings.forEach(b=>{
+        b.update(state, state.writeBuffer)
+    })
+    // Cars
+    state.cars = state.cars.filter((c) => !c.dead);
+    state.cars.forEach((c) => c.update(state.readBuffer, state));
 
 }
 
@@ -32,6 +36,7 @@ function render(state: State) {
     const RED: Metric = "housing";
     const GREEN: Metric = "unemployment";
 
+    // tiles
     state.map.forEach((x, y, v) => {
         const r =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
         const g =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
@@ -39,6 +44,22 @@ function render(state: State) {
         x == 7 && y == 15 && Math.random()<0.1 && console.log( `rgb(${r},${g},${b})`,v.buffers[state.readBuffer][GREEN]);
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+    });
+
+    // Cars
+    state.cars.forEach((c) => {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(c.x * SCALE - 2, c.y * SCALE - 2, 5, 5);
+        ctx.fillStyle = "white";
+        ctx.fillRect(c.x * SCALE - 1, c.y * SCALE - 1, 3, 3);
+    });
+
+    // Buidlings
+    ctx.strokeStyle = "red";
+    ctx.fillStyle = "limegreen";
+    state.buildings.forEach((c) => {
+        ctx.strokeRect(c.x * SCALE, c.y * SCALE, SCALE, SCALE);
+        ctx.fillText(c.getText(), c.x * SCALE, c.y * SCALE);
     });
 
 }

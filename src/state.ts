@@ -1,4 +1,6 @@
 import { Arr2 } from "./arr2";
+import { Building, StandardBuilding } from "./building";
+import { Car } from "./car";
 
 export enum TileType {
     ROAD,
@@ -37,8 +39,8 @@ export type State = {
     map: Arr2<Tile>;
     writeBuffer: 0 | 1,
     readBuffer: 0 | 1
-    //   cars: Car[];
-    //   buildings: Building[];
+    cars: Car[];
+    buildings: Building[];
 };
 
 export function initState(): State {
@@ -60,6 +62,19 @@ export function initState(): State {
                 ]
             };
         }),
+        cars: [
+            new Car(8.5, 9.5, "unemployment"),
+            new Car(8.5, 13.5, "unemployment"),
+            new Car(8.5, 15.5, "unemployment"),
+            new Car(8.5, 5.5, "unemployment"),
+            new Car(8.5, 10.5, "housing")
+        ],
+        buildings: [
+            new StandardBuilding(6, 15, 2, "unemployment", "housing"),
+            new StandardBuilding(11, 15, 2, "unemployment", "housing"),
+            new StandardBuilding(2, 3, 3, "housing", "unemployment"),
+            new StandardBuilding(8, 4, 1, "housing", "unemployment")
+        ]
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
