@@ -45,11 +45,13 @@ export type State = {
     cars: Car[];
     buildings: Building[];
     tool?: Tool;
-    zones: Zone[]
+    zones: Zone[],
+    mouse: [number,number]
 };
 
 export function initState(): State {
     const state: State = {
+        mouse: [0,0],
         writeBuffer: 0,
         readBuffer: 1,
         map: new Arr2<Tile>(20, 20, (x, y) => {

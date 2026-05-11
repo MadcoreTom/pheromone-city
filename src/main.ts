@@ -34,7 +34,7 @@ function update(state: State, time: number) {
 }
 
 const SCALE = 20;
-function render(state: State) {
+function render(state: State, time: number) {
     const RED: Metric = "housing";
     const GREEN: Metric = "unemployment";
 
@@ -43,7 +43,6 @@ function render(state: State) {
         const r =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
         const g =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
         const b = v.type == TileType.ROAD ? 64 * 3 : 64;
-        x == 7 && y == 15 && Math.random()<0.1 && console.log( `rgb(${r},${g},${b})`,v.buffers[state.readBuffer][GREEN]);
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
     });
@@ -70,11 +69,23 @@ function render(state: State) {
         ctx.strokeRect(z.x * SCALE, z.y * SCALE, z.w*SCALE, z.h*SCALE);
     });
 
+    // hover
+    if (state.tool !== undefined) {
+        if (state.tool.onHover(state, state.mouse[0], state.mouse[1])) {
+            ctx.strokeStyle = time % 400 < 200 ? "yellow" : "limegreen";
+        } else {
+            ctx.strokeStyle = "red";
+            ctx.setLineDash([4, 4]);
+        }
+        ctx.strokeRect(state.mouse[0] * SCALE, state.mouse[1] * SCALE, state.tool!.w * SCALE, state.tool!.h * SCALE);
+        ctx.setLineDash([]);
+    }
+
 }
 
 function tick(time: number) {
     update(state, time);
-    render(state);
+    render(state, time);
     window.requestAnimationFrame(tick);
 }
 window.requestAnimationFrame(tick);
@@ -85,11 +96,17 @@ canvas.addEventListener("click", (evt) => {
     console.log("click", x, y);
     //   state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), v=>console.log(JSON.stringify(v)));
     // state.cars.push(new Car(x+0.5,y+0.5,"housing"));
-    if(state.tool){
+    if(state.tool && state.tool.onHover(state, x, y)){
         state.tool.onClick(state, x, y);
     }
 });
 
+canvas.addEventListener("mousemove", (evt) => {
+    const x = Math.floor(evt.offsetX / SCALE);
+    const y = Math.floor(evt.offsetY / SCALE);
+    state.mouse[0] =x;
+    state.mouse[1] = y;
+});
 
 function initTools(state:State){
     const div = document.getElementById("tools") as HTMLDivElement;

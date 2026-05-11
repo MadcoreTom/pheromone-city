@@ -1,9 +1,9 @@
 import { Car } from "./car";
-import { State, TileType } from "./state";
+import { BLANK_TILE, State, TileType } from "./state";
 import { Zone } from "./zone";
 
 export abstract class Tool {
-    public constructor(public readonly name: string) {
+    public constructor(public readonly name: string, public readonly w: number = 1, public readonly h: number = 1) {
 
     }
 
@@ -12,6 +12,19 @@ export abstract class Tool {
     }
 
     public abstract onClick(state: State, x: number, y: number): void;
+
+    public onHover(state: State, x: number, y: number): boolean {
+        if (x < 0 || y < 0 || x + this.w > state.map.width || y + this.h > state.map.height) {
+            return false;
+        }
+        let okay = true;
+        state.map.forEachRange(x, y, x + this.w, y + this.h, (x, y, v) => {
+            if (v.type !== TileType.GRASS || v.zone) {
+                okay = false;
+            }
+        });
+        return okay;
+    }
 }
 
 class RoadTool extends Tool {
@@ -37,7 +50,15 @@ class DemolishTool extends Tool {
             t.type = TileType.GRASS;
             Object.keys(t.buffers[0]).forEach(k => (t.buffers[0] as any)[k] = -999);
             Object.keys(t.buffers[1]).forEach(k => (t.buffers[1] as any)[k] = -999);
+            if(t.zone){
+                t.zone.remove(state);
+                t.zone = undefined;
+            }
         });
+    }
+
+    public onHover(state: State, x: number, y: number): boolean {
+        return true;
     }
 }
 
@@ -53,10 +74,15 @@ class CarTool extends Tool {
             }
         });
     }
+
+    public onHover(state: State, x: number, y: number): boolean {
+        return true;
+    }
 }
+
 class ZoneTool extends Tool {
     public constructor() {
-        super("Zone Test");
+        super("Zone Test", 3, 3);
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -64,4 +90,5 @@ class ZoneTool extends Tool {
         new Zone(x,y,3,3,state);
     }
 }
+
 export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool()];
