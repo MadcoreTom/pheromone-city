@@ -76,7 +76,8 @@ class CarTool extends Tool {
     }
 
     public onHover(state: State, x: number, y: number): boolean {
-        return true;
+        const t = state.map.get(x,y,BLANK_TILE);
+        return t && t.type == TileType.ROAD;
     }
 }
 

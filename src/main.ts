@@ -116,6 +116,8 @@ function initTools(state:State){
         b.addEventListener("click", ()=>{
             console.log("Selected tool", t.name);
             state.tool = t;
+            toolButtons.forEach(b=>b.classList="");
+            b.classList="tool-selected";
         });
         return b;
     });
