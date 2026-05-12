@@ -1,6 +1,6 @@
 import { Car } from "./car";
 import { BLANK_TILE, State, TileType } from "./state";
-import { Zone } from "./zone";
+import { FactoryZone, HouseZone, Zone } from "./zone";
 
 export abstract class Tool {
     public constructor(public readonly name: string, public readonly w: number = 1, public readonly h: number = 1) {
@@ -83,13 +83,24 @@ class CarTool extends Tool {
 
 class ZoneTool extends Tool {
     public constructor() {
-        super("Zone Test", 3, 3);
+        super("House", 2, 2);
     }
 
     public onClick(state: State, x: number, y: number) {
         // TODO test for collisions first
-        new Zone(x,y,3,3,state);
+        new HouseZone(x,y,state);
     }
 }
 
-export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool()];
+class FactoryZoneTool extends Tool {
+    public constructor() {
+        super("Factory", 3, 3);
+    }
+
+    public onClick(state: State, x: number, y: number) {
+        // TODO test for collisions first
+        new FactoryZone(x,y,state);
+    }
+}
+
+export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool(), new FactoryZoneTool()];

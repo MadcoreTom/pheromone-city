@@ -1,5 +1,4 @@
 import { blur } from "./blur";
-import { Car } from "./car";
 import { initState, Metric, State, TileType } from "./state";
 import { ALL_TOOLS } from "./tools";
 
@@ -9,6 +8,12 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 
 const state: State = initState();
+// Hacky way to add things using tools
+ALL_TOOLS[3].onClick(state,3,2);
+ALL_TOOLS[3].onClick(state,9,4);
+ALL_TOOLS[3].onClick(state,2,9);
+ALL_TOOLS[4].onClick(state,15,7);
+ALL_TOOLS[4].onClick(state,12,14);
 
 
 let lastFrameTime = 0;
@@ -19,14 +24,8 @@ function update(state: State, time: number) {
     // Swap buffers
     [state.readBuffer, state.writeBuffer] = [state.writeBuffer, state.readBuffer];
     blur(state);
-    // state.map.getIf(2,2,v=>v.buffers[state.writeBuffer].housing = 0); // we should see this value blur
-    // state.map.getIf(5,15,v=>v.buffers[state.writeBuffer].unemployment = 1); // we should see this value blur
-  
-    // TODO stuff
-    // Buidlings
-    state.buildings.forEach(b=>{
-        b.update(state, state.writeBuffer)
-    })
+
+    state.zones.forEach(z => z.update(state, delta));
     // Cars
     state.cars = state.cars.filter((c) => !c.dead);
     state.cars.forEach((c) => c.update(state.readBuffer, state));
@@ -40,8 +39,8 @@ function render(state: State, time: number) {
 
     // tiles
     state.map.forEach((x, y, v) => {
-        const r =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
-        const g =255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
+        const r = 255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
+        const g = 255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
         const b = v.type == TileType.ROAD ? 64 * 3 : 64;
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
@@ -55,18 +54,12 @@ function render(state: State, time: number) {
         ctx.fillRect(c.x * SCALE - 1, c.y * SCALE - 1, 3, 3);
     });
 
-    // Buidlings
-    ctx.strokeStyle = "red";
-    ctx.fillStyle = "limegreen";
-    state.buildings.forEach((c) => {
-        ctx.strokeRect(c.x * SCALE, c.y * SCALE, SCALE, SCALE);
-        ctx.fillText(c.getText(), c.x * SCALE, c.y * SCALE);
-    });
-
     // zones
-     ctx.strokeStyle = "yellow";
+    ctx.strokeStyle = "yellow";
+    ctx.fillStyle = "lime";
     state.zones.forEach((z) => {
-        ctx.strokeRect(z.x * SCALE, z.y * SCALE, z.w*SCALE, z.h*SCALE);
+        ctx.strokeRect(z.x * SCALE, z.y * SCALE, z.w * SCALE, z.h * SCALE);
+        ctx.fillText(z.getText(), z.x * SCALE, z.y * SCALE);
     });
 
     // hover
@@ -96,7 +89,7 @@ canvas.addEventListener("click", (evt) => {
     console.log("click", x, y);
     //   state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), v=>console.log(JSON.stringify(v)));
     // state.cars.push(new Car(x+0.5,y+0.5,"housing"));
-    if(state.tool && state.tool.onHover(state, x, y)){
+    if (state.tool && state.tool.onHover(state, x, y)) {
         state.tool.onClick(state, x, y);
     }
 });
@@ -104,23 +97,23 @@ canvas.addEventListener("click", (evt) => {
 canvas.addEventListener("mousemove", (evt) => {
     const x = Math.floor(evt.offsetX / SCALE);
     const y = Math.floor(evt.offsetY / SCALE);
-    state.mouse[0] =x;
+    state.mouse[0] = x;
     state.mouse[1] = y;
 });
 
-function initTools(state:State){
+function initTools(state: State) {
     const div = document.getElementById("tools") as HTMLDivElement;
-    const toolButtons = ALL_TOOLS.map(t=>{
+    const toolButtons = ALL_TOOLS.map(t => {
         const b = document.createElement("button");
         b.innerText = t.name;
-        b.addEventListener("click", ()=>{
+        b.addEventListener("click", () => {
             console.log("Selected tool", t.name);
             state.tool = t;
-            toolButtons.forEach(b=>b.classList="");
-            b.classList="tool-selected";
+            toolButtons.forEach(b => b.classList = "");
+            b.classList = "tool-selected";
         });
         return b;
     });
-    toolButtons.forEach(t=>div.appendChild(t));
+    toolButtons.forEach(t => div.appendChild(t));
 }
 initTools(state);

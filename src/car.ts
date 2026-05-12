@@ -1,4 +1,5 @@
 import { BLANK_TILE, Metric, State } from "./state";
+import { Zone } from "./zone";
 
 export class Car {
   private dx = 0;
@@ -38,13 +39,22 @@ export class Car {
 
       // if you found a target
       if (c === 0) {
+        let nearZone: Zone | undefined = undefined;
+        state.map.getIf(tx - 1, ty, z => nearZone = z.zone && z.zone.providesNeed(this.target) ? z.zone : nearZone);
+        state.map.getIf(tx + 1, ty, z => nearZone = z.zone && z.zone.providesNeed(this.target) ? z.zone : nearZone);
+        state.map.getIf(tx, ty - 1, z => nearZone = z.zone && z.zone.providesNeed(this.target) ? z.zone : nearZone);
+        state.map.getIf(tx, ty + 1, z => nearZone = z.zone && z.zone.providesNeed(this.target) ? z.zone : nearZone);
         // TODO kill the car
-        const b = state.buildings.filter((j) => j.x == tx && j.y == ty)[0];
-        if (b) {
-          b.carArrives(this);
-        console.log("Reached the end at", tx, ty);
-        } else {
-          console.log("Nothing there", rx,ty)
+        if (nearZone !== undefined) {
+          // const b = state.buildings.filter((j) => j.x == tx && j.y == ty)[0];
+          // if (b) {
+          //   b.carArrives(this);
+          //   console.log("Reached the end at", tx, ty);
+          // } else {
+          //   console.log("Nothing there", rx, ty)
+          // }
+          this.dead = true;
+          (nearZone as Zone).cars.push(this);
         }
       }
       this.dx = 0;
