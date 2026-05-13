@@ -12,6 +12,16 @@ export class Car {
     public target: Metric
   ) {}
 
+  public chooseNextTarget() {
+    switch (this.target) {
+      case "housing":
+        this.target = "unemployment";
+        break;
+      case "unemployment":
+        this.target = "housing";
+    }
+  }
+
   public update(buffer: 0 | 1, state: State) {
     const { map } = state;
     const rx = Math.round(this.x);
@@ -54,7 +64,7 @@ export class Car {
           //   console.log("Nothing there", rx, ty)
           // }
           this.dead = true;
-          (nearZone as Zone).cars.push(this);
+          (nearZone as Zone).enter(this);
         }
       }
       this.dx = 0;

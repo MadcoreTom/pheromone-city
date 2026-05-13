@@ -41,7 +41,7 @@ function render(state: State, time: number) {
     state.map.forEach((x, y, v) => {
         const r = 255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
         const g = 255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
-        const b = v.type == TileType.ROAD ? 64 * 3 : 64;
+        const b = v.type == TileType.ROAD ? 0 : 255;
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
     });
