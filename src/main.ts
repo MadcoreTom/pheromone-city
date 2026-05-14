@@ -1,4 +1,6 @@
 import { blur } from "./blur";
+import { SCALE } from "./constants";
+import { render, RENDER_MODES } from "./render";
 import { initState, Metric, State, TileType } from "./state";
 import { ALL_TOOLS } from "./tools";
 
@@ -32,53 +34,10 @@ function update(state: State, time: number) {
 
 }
 
-const SCALE = 20;
-function render(state: State, time: number) {
-    const RED: Metric = "housing";
-    const GREEN: Metric = "unemployment";
-
-    // tiles
-    state.map.forEach((x, y, v) => {
-        const r = 255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][RED]) * 10));
-        const g = 255 - Math.min(255, (Math.abs(v.buffers[state.readBuffer][GREEN]) * 10));
-        const b = v.type == TileType.ROAD ? 0 : 255;
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
-    });
-
-    // Cars
-    state.cars.forEach((c) => {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(c.x * SCALE - 2, c.y * SCALE - 2, 5, 5);
-        ctx.fillStyle = "white";
-        ctx.fillRect(c.x * SCALE - 1, c.y * SCALE - 1, 3, 3);
-    });
-
-    // zones
-    ctx.strokeStyle = "yellow";
-    ctx.fillStyle = "lime";
-    state.zones.forEach((z) => {
-        ctx.strokeRect(z.x * SCALE, z.y * SCALE, z.w * SCALE, z.h * SCALE);
-        ctx.fillText(z.getText(), z.x * SCALE, z.y * SCALE);
-    });
-
-    // hover
-    if (state.tool !== undefined) {
-        if (state.tool.onHover(state, state.mouse[0], state.mouse[1])) {
-            ctx.strokeStyle = time % 400 < 200 ? "yellow" : "limegreen";
-        } else {
-            ctx.strokeStyle = "red";
-            ctx.setLineDash([4, 4]);
-        }
-        ctx.strokeRect(state.mouse[0] * SCALE, state.mouse[1] * SCALE, state.tool!.w * SCALE, state.tool!.h * SCALE);
-        ctx.setLineDash([]);
-    }
-
-}
 
 function tick(time: number) {
     update(state, time);
-    render(state, time);
+     render(ctx,state,time);
     window.requestAnimationFrame(tick);
 }
 window.requestAnimationFrame(tick);
@@ -115,5 +74,25 @@ function initTools(state: State) {
         return b;
     });
     toolButtons.forEach(t => div.appendChild(t));
+
+    // render modes
+    const div2 = document.getElementById("render-modes") as HTMLDivElement;
+    const rmButtons = RENDER_MODES.map(rm => {
+        const b = document.createElement("button");
+        b.innerText = rm.getName();
+        b.addEventListener("click", () => {
+            console.log("Selected render mode", rm.getName());
+            if(rm !== state.renderMode){
+                state.renderMode = rm;
+                rmButtons.forEach(b => b.classList = "");
+                b.classList = "tool-selected";
+            } else {
+                state.renderMode = undefined;
+                b.classList = "";
+            }
+        });
+        return b;
+    });
+    rmButtons.forEach(t => div2.appendChild(t));
 }
 initTools(state);

@@ -44,8 +44,16 @@ export type State = {
     cars: Car[];
     tool?: Tool;
     zones: Zone[],
-    mouse: [number, number]
+    mouse: [number, number],
+    renderMode?: RenderMode
 };
+
+export interface RenderMode{
+    getTileFill(state:State,tile:Tile):string;
+    highlightCar(car:Car):boolean;
+    getName():string;
+}
+
 
 export function initState(): State {
     const state: State = {
