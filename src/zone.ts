@@ -53,7 +53,7 @@ export abstract class Zone {
 
     public abstract providesNeed(metric: Metric): boolean;
 
-    public abstract enter(car:Car);
+    public abstract enter(car:Car):any;
 
 
     public abstract getText(): string;
@@ -137,5 +137,52 @@ export class FactoryZone extends Zone {
 
     public getText(): string {
         return `Factory ${this.cars.length}/${this.capacity}`;
+    }
+}
+
+
+export class ShopZone extends Zone {
+    private readonly capacity = 1;
+    public constructor(x: number, y: number, state: State) {
+        super(x, y, 2, 3, state);
+    }
+
+
+    public update(state: State, delta: number) {
+        if (this.cars.length < this.capacity) {
+            this.emitMetric(state, "shopping");
+        }
+
+        // then dump the cars out
+        // TODO do this better
+        // if (this.cars.length > 0 && Math.random() < 0.003) {
+        //     // TODO put this in the best neighbour
+        //     const c = this.cars.shift()!;
+        //     c.dead = false;
+        //     c.target = "housing"
+        //     state.cars.push(c);
+        // }
+        
+        this.cars.forEach(c=>c[0] -= delta);
+        if(this.cars.length > 0 && this.cars[0][0] <= 0){
+            const [_,car] = this.cars.shift()!;
+            car.dead = false;// TODO rename dead to hidden
+            car.chooseNextTarget();
+            state.cars.push(car);
+        }
+    }
+
+
+    public enter(car:Car){
+        this.cars.push([500,car]);
+    }
+
+
+    public providesNeed(metric: Metric): boolean {
+        return metric == "shopping" && this.cars.length < this.capacity;
+    }
+
+    public getText(): string {
+        return `Shop ${this.cars.length}/${this.capacity}`;
     }
 }

@@ -16,6 +16,7 @@ ALL_TOOLS[3].onClick(state,9,4);
 ALL_TOOLS[3].onClick(state,2,9);
 ALL_TOOLS[4].onClick(state,15,7);
 ALL_TOOLS[4].onClick(state,12,14);
+ALL_TOOLS[5].onClick(state,3,14);
 
 
 let lastFrameTime = 0;

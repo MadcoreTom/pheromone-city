@@ -11,6 +11,7 @@ export enum TileType {
 export type TileBuffer = {
     unemployment: number;
     housing: number;
+    shopping: number;
 };
 
 export type Metric = keyof TileBuffer;
@@ -28,11 +29,13 @@ export const BLANK_TILE: Tile = {
     buffers: [
         {
             unemployment: -999,
-            housing: -999
+            housing: -999,
+            shopping: -999
         },
         {
             unemployment: -999,
-            housing: -999
+            housing: -999,
+            shopping: -999
         }
     ]
 };
@@ -48,10 +51,10 @@ export type State = {
     renderMode?: RenderMode
 };
 
-export interface RenderMode{
-    getTileFill(state:State,tile:Tile):string;
-    highlightCar(car:Car):boolean;
-    getName():string;
+export interface RenderMode {
+    getTileFill(state: State, tile: Tile): string;
+    highlightCar(car: Car): boolean;
+    getName(): string;
 }
 
 
@@ -66,11 +69,13 @@ export function initState(): State {
                 buffers: [
                     {
                         unemployment: -999,
-                        housing: -999
+                        housing: -999,
+                        shopping: -999
                     },
                     {
                         unemployment: -999,
-                        housing: -999
+                        housing: -999,
+                        shopping: -999
                     }
                 ]
             };

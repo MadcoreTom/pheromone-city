@@ -1,21 +1,9 @@
-import { State, TileType } from "./state";
+import { BLANK_TILE, State, TileType } from "./state";
 
 export function blur(state: State) {
     const { map, readBuffer, writeBuffer } = state;
     map.forEachWithNeighbours(
-        {
-            type: TileType.GRASS,
-            buffers: [
-                {
-                    unemployment: 0,
-                    housing: 0
-                },
-                {
-                    unemployment: 0,
-                    housing: 0
-                }
-            ]
-        },
+        BLANK_TILE,
         (x, y, v, l, u, r, d) => {
             if (v.type != TileType.ROAD) {
                 return;
@@ -29,6 +17,8 @@ export function blur(state: State) {
                 Math.max(cur.unemployment, lv.unemployment, uv.unemployment, rv.unemployment, dv.unemployment) - 1;
             v.buffers[writeBuffer].housing =
                 Math.max(cur.housing, lv.housing, uv.housing, rv.housing, dv.housing) - 1;
+            v.buffers[writeBuffer].shopping =
+                Math.max(cur.shopping, lv.shopping, uv.shopping, rv.shopping, dv.shopping) - 1;
         }
     );
 }

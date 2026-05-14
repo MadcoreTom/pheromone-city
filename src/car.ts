@@ -14,11 +14,12 @@ export class Car {
 
   public chooseNextTarget() {
     switch (this.target) {
+      case "shopping":
       case "housing":
         this.target = "unemployment";
         break;
       case "unemployment":
-        this.target = "housing";
+        this.target = Math.random() < 0.3 ? "shopping" : "housing";
     }
   }
 

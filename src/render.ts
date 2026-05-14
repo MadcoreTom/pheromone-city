@@ -69,5 +69,6 @@ class RenderModeMetric implements RenderMode {
 
 export const RENDER_MODES:RenderMode[] = [
     new RenderModeMetric("unemployment"),
-    new RenderModeMetric("housing")
+    new RenderModeMetric("housing"),
+    new RenderModeMetric("shopping")
 ]
