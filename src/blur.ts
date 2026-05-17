@@ -14,7 +14,7 @@ export function blur(state: State, delta: number) {
             const rv = r.buffers[readBuffer];
             const dv = d.buffers[readBuffer];
             const cur = v.buffers[readBuffer];
-            const trafficEffect = 1+cur.traffic / 10;
+            const trafficEffect = 1+cur.traffic / 2;
             v.buffers[writeBuffer].unemployment =
                 Math.max(cur.unemployment, lv.unemployment, uv.unemployment, rv.unemployment, dv.unemployment) - trafficEffect;
             v.buffers[writeBuffer].housing =
