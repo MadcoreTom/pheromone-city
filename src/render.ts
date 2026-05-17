@@ -67,8 +67,24 @@ class RenderModeMetric implements RenderMode {
     }
 }
 
+class RenderModeTraffic implements RenderMode {
+
+    getTileFill(state: State, tile: Tile): string {
+        const g = 255 - Math.min(255, tile.buffers[state.readBuffer].traffic * 20);
+        const r = 255 - g;
+        return `rgb(${r},${g}, 0)`;
+    }
+    highlightCar(car:Car):boolean{
+        return true;
+    }
+    getName():string{
+        return "Traffic";
+    }
+}
+
 export const RENDER_MODES:RenderMode[] = [
     new RenderModeMetric("unemployment"),
     new RenderModeMetric("housing"),
-    new RenderModeMetric("shopping")
+    new RenderModeMetric("shopping"),
+    new RenderModeTraffic()
 ]

@@ -23,12 +23,12 @@ export class Car {
     }
   }
 
-  public update(buffer: 0 | 1, state: State) {
+  public update(buffer: 0 | 1, state: State, delta:number) {
     const { map } = state;
     const rx = Math.round(this.x);
     const ry = Math.round(this.y);
 
-    this.x += this.dx * 0.04;
+    this.x += this.dx * 0.04; // tODO use deltahere
     this.y += this.dy * 0.04;
 
     const nx = Math.round(this.x);
@@ -37,6 +37,7 @@ export class Car {
     if (rx != nx || ry != ny || this.first) {
       const tx = Math.floor(this.x);
       const ty = Math.floor(this.y);
+      state.map.getIf(tx,ty,v=>v.buffers[1-buffer].traffic+=1);
       this.first = false;
       const c = map.get(tx, ty, BLANK_TILE).buffers[buffer][this.target];
       const u =

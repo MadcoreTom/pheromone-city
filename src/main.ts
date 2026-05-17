@@ -26,12 +26,12 @@ function update(state: State, time: number) {
 
     // Swap buffers
     [state.readBuffer, state.writeBuffer] = [state.writeBuffer, state.readBuffer];
-    blur(state);
+    blur(state, delta);
 
     state.zones.forEach(z => z.update(state, delta));
     // Cars
     state.cars = state.cars.filter((c) => !c.dead);
-    state.cars.forEach((c) => c.update(state.readBuffer, state));
+    state.cars.forEach((c) => c.update(state.readBuffer, state, delta));
 
 }
 

@@ -12,6 +12,7 @@ export type TileBuffer = {
     unemployment: number;
     housing: number;
     shopping: number;
+    traffic: number;
 };
 
 export type Metric = keyof TileBuffer;
@@ -30,12 +31,14 @@ export const BLANK_TILE: Tile = {
         {
             unemployment: -999,
             housing: -999,
-            shopping: -999
+            shopping: -999,
+            traffic:0
         },
         {
             unemployment: -999,
             housing: -999,
-            shopping: -999
+            shopping: -999,
+            traffic:0
         }
     ]
 };
@@ -70,12 +73,14 @@ export function initState(): State {
                     {
                         unemployment: -999,
                         housing: -999,
-                        shopping: -999
+                        shopping: -999.,
+                        traffic: 0
                     },
                     {
                         unemployment: -999,
                         housing: -999,
-                        shopping: -999
+                        shopping: -999,
+                        traffic: 0
                     }
                 ]
             };
