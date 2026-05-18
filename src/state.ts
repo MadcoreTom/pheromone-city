@@ -1,3 +1,4 @@
+import { Camera, Mesh, Object3D, OrthographicCamera, Scene } from "three";
 import { Arr2 } from "./arr2";
 import { Car } from "./car";
 import { Tool } from "./tools";
@@ -51,7 +52,10 @@ export type State = {
     tool?: Tool;
     zones: Zone[],
     mouse: [number, number],
-    renderMode?: RenderMode
+    renderMode?: RenderMode,
+    assets: {[name:string]:Mesh},
+    scene: Scene,
+     camera: Camera
 };
 
 export interface RenderMode {
@@ -95,7 +99,10 @@ export function initState(): State {
             new Car(8.5, 5.5, "housing"),
             new Car(8.5, 10.5, "housing")
         ],
-        zones: []
+        zones: [],
+        assets: {},
+        scene: new Scene(),
+        camera: new OrthographicCamera(-10,10,-10,10,0.1,100)
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
