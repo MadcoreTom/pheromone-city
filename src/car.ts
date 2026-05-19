@@ -9,10 +9,10 @@ const SPEED = 0.004;
 export class Car {
   public dead = false;
   private animation?: CarAnimation;
-  public yaw:number = 0;
+  public yaw:number = Math.PI/2;
   // delta
-  private dx: number = 1;
-  private dy: number = 0;
+  public dx: number = 1;
+  public dy: number = 0;
   // tile
   public tx: number;
   public ty: number;
@@ -119,7 +119,7 @@ type CarAnimation = (time: number) => number;
 function straight(car: Car, dx: number, dy: number): CarAnimation {
   const sx = car.tx;
   const sy = car.ty;
-  const ox = dx == 0 ? (dy < 0 ? 0.25 : 0.75) : 0;
+  const ox = dx == 0 ? (dy > 0 ? 0.25 : 0.75) : 0;
   const oy = dy == 0 ? (dx < 0 ? 0.25 : 0.75) : 0;
   let time = 0;
   return function (delta: number) {
@@ -130,6 +130,8 @@ function straight(car: Car, dx: number, dy: number): CarAnimation {
     if(r >0){
       car.tx += dx;
       car.ty += dy;
+      car.dx = dx;
+      car.dy = dy;
     }
     return r;
   }

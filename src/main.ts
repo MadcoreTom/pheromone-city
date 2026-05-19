@@ -3,7 +3,7 @@ import { blur } from "./blur";
 import { MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
 import { render, RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
-import { initState, Metric, State, TileType } from "./state";
+import { initState, State, TileType } from "./state";
 import { ALL_TOOLS } from "./tools";
 
 console.log("Hello main");

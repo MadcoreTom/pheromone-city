@@ -29,8 +29,8 @@ export function render(ctx: CanvasRenderingContext2D, state: State, time: number
         ctx.fillRect(c.x * SCALE - 1, c.y * SCALE - 1, 3, 3);
 
         // debug
-        ctx.fillStyle = "red";
-        ctx.fillRect(c.tx * SCALE , c.ty * SCALE , SCALE,SCALE);
+        ctx.strokeStyle = "red";
+        ctx.strokeRect(c.tx * SCALE , c.ty * SCALE , SCALE,SCALE);
     });
 
     // zones
