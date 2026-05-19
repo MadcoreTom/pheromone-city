@@ -26,13 +26,16 @@ function update(state: State, time: number) {
     state.zones.forEach(z => z.update(state, delta));
     // Cars
     state.cars = state.cars.filter((c) => !c.dead);
-    state.cars.forEach((c) => c.update(state.readBuffer, state, delta));
+    state.cars.forEach((c) => c.update(state, delta));
 
     const aliveCars = state.cars.filter(c => !c.dead);
     const ci: InstancedMesh = state.scene.getObjectByName("instanced_cars")! as InstancedMesh;
     ci.count = aliveCars.length;
     aliveCars.forEach((c, i) => {
-        ci.setMatrixAt(i, new Matrix4().makeTranslation(c.x - state.map.width/2, 0, c.y - state.map.height/2-1));
+        const mat =  new Matrix4();
+        mat.makeTranslation(c.x - state.map.width/2, 0, c.y - state.map.height/2-1);
+        mat.multiply(new Matrix4().makeRotationY(c.yaw))
+        ci.setMatrixAt(i,mat);
     })
     ci.instanceMatrix.needsUpdate = true;
 
