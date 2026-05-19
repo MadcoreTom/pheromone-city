@@ -1,5 +1,5 @@
 import { Car } from "./car";
-import { BLANK_TILE, State, TileType } from "./state";
+import { BLANK_TILE, State, Tile, TileType } from "./state";
 import { FactoryZone, HouseZone, ShopZone, Zone } from "./zone";
 
 export abstract class Tool {
@@ -35,6 +35,7 @@ class RoadTool extends Tool {
     public onClick(state: State, x: number, y: number) {
         state.map.getIf(Math.floor(x), Math.floor(y), t => {
             t.type = TileType.ROAD;
+        update3dScene(x,y,t,state);
         });
     }
 }
@@ -54,6 +55,7 @@ class DemolishTool extends Tool {
                 t.zone.remove(state);
                 t.zone = undefined;
             }
+        update3dScene(x,y,t,state);
         });
     }
 
@@ -72,6 +74,7 @@ class CarTool extends Tool {
             if (t.type == TileType.ROAD) {
                 state.cars.push(new Car(x + 0.5, y + 0.5, "housing"));
             }
+        update3dScene(x,y,t,state);
         });
     }
 
@@ -88,6 +91,7 @@ class ZoneTool extends Tool {
 
     public onClick(state: State, x: number, y: number) {
         new HouseZone(x,y,state);
+        update3dScene(x,y,state.map.get(x,y,BLANK_TILE),state);
     }
 }
 
@@ -98,6 +102,7 @@ class FactoryZoneTool extends Tool {
 
     public onClick(state: State, x: number, y: number) {
         new FactoryZone(x,y,state);
+        update3dScene(x,y,state.map.get(x,y,BLANK_TILE),state);
     }
 }
 class ShoppingZoneTool extends Tool {
@@ -107,7 +112,35 @@ class ShoppingZoneTool extends Tool {
 
     public onClick(state: State, x: number, y: number) {
         new ShopZone(x,y,state);
+        update3dScene(x,y,state.map.get(x,y,BLANK_TILE),state);
     }
+}
+
+function update3dScene(x:number,y:number,t:Tile, state:State){
+    if(t.object){
+        t.object.parent!.remove(t.object);
+        t.object = undefined;
+    }
+
+         if(t.zone){
+               const m = state.assets["house"].clone();
+                // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
+                m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+                state.scene.add(m);
+                t.object = m;
+            } else if (t.type == TileType.ROAD) {
+                const m = state.assets["road"].clone();
+                // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
+                m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+                state.scene.add(m);
+                t.object = m;
+            } else     if (t.type == TileType.GRASS) {
+                const m = state.assets["blank"].clone();
+                // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
+                m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+                state.scene.add(m);
+                t.object = m;
+            }
 }
 
 export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];

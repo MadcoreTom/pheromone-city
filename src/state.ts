@@ -24,6 +24,7 @@ export type Tile = {
     type: TileType;
     buffers: TileBuffers;
     zone?: Zone;
+    object?: Object3D
 };
 
 export const BLANK_TILE: Tile = {

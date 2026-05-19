@@ -1,6 +1,6 @@
 import { AmbientLight, DirectionalLight, InstancedMesh, Matrix4, Mesh, Scene, WebGLRenderer } from "three";
 import { blur } from "./blur";
-import { SCALE } from "./constants";
+import { MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
 import { render, RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
 import { initState, Metric, State, TileType } from "./state";
@@ -12,13 +12,6 @@ const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 
 const state: State = initState();
-// Hacky way to add things using tools
-ALL_TOOLS[3].onClick(state, 3, 2);
-ALL_TOOLS[3].onClick(state, 9, 4);
-ALL_TOOLS[3].onClick(state, 2, 9);
-ALL_TOOLS[4].onClick(state, 15, 7);
-ALL_TOOLS[4].onClick(state, 12, 14);
-ALL_TOOLS[5].onClick(state, 3, 14);
 
 
 let lastFrameTime = 0;
@@ -35,6 +28,17 @@ function update(state: State, time: number) {
     state.cars = state.cars.filter((c) => !c.dead);
     state.cars.forEach((c) => c.update(state.readBuffer, state, delta));
 
+    const aliveCars = state.cars.filter(c => !c.dead);
+    const ci: InstancedMesh = state.scene.getObjectByName("instanced_cars")! as InstancedMesh;
+    ci.count = aliveCars.length;
+    aliveCars.forEach((c, i) => {
+        ci.setMatrixAt(i, new Matrix4().makeTranslation(c.x - state.map.width/2, 0, c.y - state.map.height/2-1));
+    })
+    ci.instanceMatrix.needsUpdate = true;
+
+    // spinning camera
+    state.camera.position.set(Math.sin(time/10000)*10,10,Math.cos(time/10000)*10);
+    state.camera.lookAt(0,0,0)
 }
 
 
@@ -102,26 +106,43 @@ initTools(state);
 
 async function start() {
     await initScene(state);
+    // Hacky way to add things using tools
+    ALL_TOOLS[3].onClick(state, 3, 2);
+    ALL_TOOLS[3].onClick(state, 9, 4);
+    ALL_TOOLS[3].onClick(state, 2, 9);
+    ALL_TOOLS[4].onClick(state, 15, 7);
+    ALL_TOOLS[4].onClick(state, 12, 14);
+    ALL_TOOLS[5].onClick(state, 3, 14);
 
 
     state.map.forEach((x, y, v) => {
-        if(v.zone){
-           const m = state.assets["house"].clone();
+        if (v.zone) {
+            const m = state.assets["house"].clone();
             // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
             m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
             state.scene.add(m);
+            v.object = m;
         } else if (v.type == TileType.ROAD) {
             const m = state.assets["road"].clone();
             // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
             m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
             state.scene.add(m);
-        } else     if (v.type == TileType.GRASS) {
+            v.object = m;
+        } else if (v.type == TileType.GRASS) {
             const m = state.assets["blank"].clone();
             // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
             m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
             state.scene.add(m);
+            v.object = m;
         }
     });
+
+    // cars
+    const cars = new InstancedMesh(state.assets["car"].geometry, state.assets["car"].material, MAX_CAR_RENDER_COUNT);
+    cars.name = "instanced_cars";
+    state.scene.add(cars);
+
+
     const light = new DirectionalLight("#ffffff", 3);
     light.position.set(-8, -10, -7)
     light.lookAt(0, 0, 0);
