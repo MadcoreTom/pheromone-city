@@ -151,6 +151,12 @@ async function start() {
     light.lookAt(0, 0, 0);
     state.scene.add(light);
 
+    // fill light
+    const light2 = new DirectionalLight("#ffffff", 1);
+    light2.position.set(8, -10, 7)
+    light2.lookAt(0, 0, 0);
+    state.scene.add(light2);
+
     state.scene.add(new AmbientLight(0xffffff, 0.5));
 
     state.camera.position.set(10, 10, 10);
