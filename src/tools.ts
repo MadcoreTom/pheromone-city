@@ -125,19 +125,19 @@ function update3dScene(x:number,y:number,t:Tile, state:State){
          if(t.zone){
                const m = state.assets["house"].clone();
                 // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
-                m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+                m.position.set(x , 0, y );
                 state.scene.add(m);
                 t.object = m;
             } else if (t.type == TileType.ROAD) {
                 const m = state.assets["road"].clone();
                 // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
-                m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+                m.position.set(x, 0, y);
                 state.scene.add(m);
                 t.object = m;
             } else     if (t.type == TileType.GRASS) {
                 const m = state.assets["blank"].clone();
                 // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
-                m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+                m.position.set(x, 0, y);
                 state.scene.add(m);
                 t.object = m;
             }

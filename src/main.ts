@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, InstancedMesh, Matrix4, Mesh, Scene, WebGLRenderer } from "three";
+import { AmbientLight, DirectionalLight, InstancedMesh, Line3, Matrix4, Mesh, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
 import { render, RENDER_MODES } from "./render";
@@ -33,15 +33,18 @@ function update(state: State, time: number) {
     ci.count = aliveCars.length;
     aliveCars.forEach((c, i) => {
         const mat =  new Matrix4();
-        mat.makeTranslation(c.x - state.map.width/2, 0, c.y - state.map.height/2-1);
+        mat.makeTranslation(c.x, 0, c.y -1);
         mat.multiply(new Matrix4().makeRotationY(c.yaw))
         ci.setMatrixAt(i,mat);
     })
     ci.instanceMatrix.needsUpdate = true;
 
+    // move mouse pos indicator
+    state.scene.getObjectByName("mouse_hover")!.position.set(state.mouse[0],0,state.mouse[1]);
+
     // spinning camera
-    state.camera.position.set(Math.sin(time/10000)*10,10,Math.cos(time/10000)*10);
-    state.camera.lookAt(0,0,0)
+    state.camera.position.set(state.map.width/2+Math.sin(time/10000)*10,10,state.map.height/2+Math.cos(time/10000)*10);
+    state.camera.lookAt(state.map.width/2,0,state.map.height/2)
 }
 
 
@@ -121,20 +124,17 @@ async function start() {
     state.map.forEach((x, y, v) => {
         if (v.zone) {
             const m = state.assets["house"].clone();
-            // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
-            m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+            m.position.set(x, 0, y);
             state.scene.add(m);
             v.object = m;
         } else if (v.type == TileType.ROAD) {
             const m = state.assets["road"].clone();
-            // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
-            m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+            m.position.set(x, 0, y);
             state.scene.add(m);
             v.object = m;
         } else if (v.type == TileType.GRASS) {
             const m = state.assets["blank"].clone();
-            // m.matrix.copy(new Matrix4().makeTranslation(x, 0, y));
-            m.position.set(x - state.map.width / 2, 0, y - state.map.height / 2);
+            m.position.set(x, 0, y);
             state.scene.add(m);
             v.object = m;
         }
@@ -163,6 +163,14 @@ async function start() {
     state.camera.up.set(0, -1, 0);
     state.camera.lookAt(0, 0, 0);
 
+
+    // hover
+    const h = state.assets["select"].clone();
+    h.name ="mouse_hover"
+    state.scene.add(h);
+
+    
+
     console.log("Start")
     window.requestAnimationFrame(tick);
 }
@@ -178,5 +186,49 @@ renderer.setClearColor("#95CDE9");
 canvas.parentNode!.insertBefore(renderer.domElement, canvas.nextSibling)
 renderer.domElement.style.float = "right"
 // document.body.appendChild(renderer.domElement);
+
+
+// clicky
+const clickyPlane = new Plane(new Vector3(0,1,0), 0);
+const raycaster = new Raycaster();
+const mathRay = new Ray();
+
+function setMouseFromEventIn3dScne(event:MouseEvent){
+    const rect = renderer.domElement.getBoundingClientRect();
+
+    // Convert screen pixels to Normalized Device Coordinates (-1 to +1)
+    const  mouse = new Vector2();
+    mouse.x = ((event.offsetX) / rect.width) * 2 - 1;
+    mouse.y = -((event.offsetY) / rect.height) * 2 + 1;
+
+    // 3. Update the raycaster using your Orthographic Camera
+    raycaster.setFromCamera(mouse, state.camera);
+
+    // 4. Extract the underlying, pure mathematical THREE.Ray
+    // This ray updates its origin and direction automatically!
+    mathRay.copy(raycaster.ray);
+    
+    const pt = new Vector3(9,9,9)
+    const hit = mathRay.intersectPlane(clickyPlane, pt);
+    if(hit ){
+        state.mouse = [Math.floor(pt.x), Math.floor(pt.z)+1];
+        // state.tool.onHover(state,Math.round(pt.x), Math.round(pt.z))
+    }
+    // consol
+}
+
+renderer.domElement.addEventListener("mousemove", event=>{
+    setMouseFromEventIn3dScne(event);
+    if(state.tool){
+        state.tool.onHover(state, state.mouse[0], state.mouse[1])
+    }
+});
+
+renderer.domElement.addEventListener("click", event=>{
+    setMouseFromEventIn3dScne(event);
+    if(state.tool){
+        state.tool.onClick(state, state.mouse[0], state.mouse[1])
+    }
+});
 
 start();
