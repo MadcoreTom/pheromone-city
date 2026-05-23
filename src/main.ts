@@ -5,6 +5,7 @@ import { render, RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
 import { ALL_TOOLS } from "./tools";
+import { updateSceneRange } from "./scene/util";
 
 console.log("Hello main");
 
@@ -40,7 +41,14 @@ function update(state: State, time: number) {
     ci.instanceMatrix.needsUpdate = true;
 
     // move mouse pos indicator
-    state.scene.getObjectByName("mouse_hover")!.position.set(state.mouse[0],0,state.mouse[1]);
+    const hov = state.scene.getObjectByName("mouse_hover")!;
+    if (state.tool) {
+        hov.visible = true;
+        hov.position.set(state.mouse[0], 0, state.mouse[1] + state.tool.h - 1);
+        hov.scale.set(state.tool.w, 1, state.tool.h);
+    } else {
+        hov.visible = false;
+    }
 
     // spinning camera
     state.camera.position.set(state.map.width/2+Math.sin(time/10000)*10,10,state.map.height/2+Math.cos(time/10000)*10);
@@ -121,24 +129,7 @@ async function start() {
     ALL_TOOLS[5].onClick(state, 3, 14);
 
 
-    state.map.forEach((x, y, v) => {
-        if (v.zone) {
-            const m = state.assets["house"].clone();
-            m.position.set(x, 0, y);
-            state.scene.add(m);
-            v.object = m;
-        } else if (v.type == TileType.ROAD) {
-            const m = state.assets["road"].clone();
-            m.position.set(x, 0, y);
-            state.scene.add(m);
-            v.object = m;
-        } else if (v.type == TileType.GRASS) {
-            const m = state.assets["blank"].clone();
-            m.position.set(x, 0, y);
-            state.scene.add(m);
-            v.object = m;
-        }
-    });
+    updateSceneRange(state,0,0,state.map.width, state.map.height);
 
     // cars
     const cars = new InstancedMesh(state.assets["car"].geometry, state.assets["car"].material, MAX_CAR_RENDER_COUNT);
@@ -168,8 +159,6 @@ async function start() {
     const h = state.assets["select"].clone();
     h.name ="mouse_hover"
     state.scene.add(h);
-
-    
 
     console.log("Start")
     window.requestAnimationFrame(tick);
@@ -226,7 +215,7 @@ renderer.domElement.addEventListener("mousemove", event=>{
 
 renderer.domElement.addEventListener("click", event=>{
     setMouseFromEventIn3dScne(event);
-    if(state.tool){
+    if(state.tool && state.tool.onHover(state, state.mouse[0], state.mouse[1])){
         state.tool.onClick(state, state.mouse[0], state.mouse[1])
     }
 });
