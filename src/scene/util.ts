@@ -1,5 +1,6 @@
 import { Object3D } from "three";
 import { State, TileType } from "../state";
+import { FactoryZone } from "../zone";
 
 export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:number=1){
 
@@ -8,10 +9,21 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
 
 
         if (v.zone) {
-            const m = state.assets["house"].clone();
-            m.position.set(x, 0, y);
-            state.scene.add(m);
-            v.object = m;
+            if (v.zone instanceof FactoryZone) {
+                if (x == v.zone.x && y == v.zone.y){
+                const m = state.assets["factory"].clone();
+                m.position.set(x, 0, y);
+                state.scene.add(m);
+                v.object = m;
+
+                }
+            } else {
+                const m = state.assets["house"].clone();
+                m.position.set(x, 0, y);
+                state.scene.add(m);
+                v.object = m;
+
+            }
         } else if (v.type == TileType.ROAD) {
             const m = state.assets["road"].clone();
             m.position.set(x, 0, y);
