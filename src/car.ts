@@ -95,6 +95,17 @@ export class Car {
       }
     }
 
+    // If only only one out of fwd/left/right, go that way (not an intersection, jsuta  straight or corner)
+    if(fwd >= 0 && left < 0 && right < 0){
+      return Direction.FWD;
+    }
+    if(left >= 0 && fwd < 0 && right < 0){
+      return Direction.LEFT;
+    }
+    if(right >= 0 && left < 0 && fwd < 0){
+      return Direction.RIGHT;
+    }
+
     const max = Math.max(fwd, bkwd, left, right);
     switch (max) {
       case fwd:
