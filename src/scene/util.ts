@@ -1,6 +1,6 @@
 import { Object3D } from "three";
 import { State, TileType } from "../state";
-import { FactoryZone } from "../zone";
+import { FactoryZone, ShopZone } from "../zone";
 
 export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:number=1){
 
@@ -10,11 +10,19 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
 
         if (v.zone) {
             if (v.zone instanceof FactoryZone) {
-                if (x == v.zone.x && y == v.zone.y){
-                const m = state.assets["factory"].clone();
-                m.position.set(x, 0, y);
-                state.scene.add(m);
-                v.object = m;
+                if (x == v.zone.x && y == v.zone.y) {
+                    const m = state.assets["factory"].clone();
+                    m.position.set(x, 0, y);
+                    state.scene.add(m);
+                    v.object = m;
+
+                }
+            } else if (v.zone instanceof ShopZone) {
+                if (x == v.zone.x && y == v.zone.y) {
+                    const m = state.assets["shop"].clone();
+                    m.position.set(x, 0, y);
+                    state.scene.add(m);
+                    v.object = m;
 
                 }
             } else {
