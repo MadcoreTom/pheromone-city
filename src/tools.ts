@@ -52,11 +52,17 @@ class DemolishTool extends Tool {
             t.type = TileType.GRASS;
             Object.keys(t.buffers[0]).forEach(k => (t.buffers[0] as any)[k] = -999);
             Object.keys(t.buffers[1]).forEach(k => (t.buffers[1] as any)[k] = -999);
-            if(t.zone){
+            let w = 1;
+            let h = 1;
+            if (t.zone) {
+                w = t.zone.w;
+                h = t.zone.h;
+                x = t.zone.x;
+                y = t.zone.y;
                 t.zone.remove(state);
                 t.zone = undefined;
             }
-        update3dScene(x,y,this,state);
+            updateSceneRange(state, x, y, w, h);
         });
     }
 
