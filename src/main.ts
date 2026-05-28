@@ -1,10 +1,10 @@
-import { AmbientLight, DirectionalLight, InstancedMesh, Line3, Matrix4, Mesh, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
 import { render, RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
-import { ALL_TOOLS } from "./tools";
+import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
 import { updateSceneRange } from "./scene/util";
 
 console.log("Hello main");
@@ -52,7 +52,17 @@ function update(state: State, time: number) {
 
     // spinning camera
     state.camera.position.set(state.map.width/2+Math.sin(time/10000)*10,10,state.map.height/2+Math.cos(time/10000)*10);
-    state.camera.lookAt(state.map.width/2,0,state.map.height/2)
+    state.camera.lookAt(state.map.width/2,0,state.map.height/2);
+    
+    // zoom
+    if(state.zoom != state.targetZoom){
+        state.zoom = (state.zoom * 4 + state.targetZoom)/5;
+        state.camera.left = -10 * state.zoom;
+        state.camera.right = 10 * state.zoom;
+        state.camera.top = -10 * state.zoom;
+        state.camera.bottom = 10 * state.zoom;
+        state.camera.updateProjectionMatrix();
+    }
 }
 
 
@@ -141,14 +151,15 @@ async function start() {
     light.position.set(-8, -10, -7)
     light.lookAt(0, 0, 0);
     state.scene.add(light);
+    state.scene.add(light.target)
 
     // fill light
     const light2 = new DirectionalLight("#ffffff", 1);
     light2.position.set(8, -10, 7)
     light2.lookAt(0, 0, 0);
-    state.scene.add(light2);
+    // state.scene.add(light2);
 
-    state.scene.add(new AmbientLight(0xffffff, 0.5));
+    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 1 ));
 
     state.camera.position.set(10, 10, 10);
     state.camera.up.set(0, -1, 0);
@@ -173,7 +184,7 @@ renderer.setClearColor("#95CDE9");
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
 canvas.parentNode!.insertBefore(renderer.domElement, canvas.nextSibling)
-renderer.domElement.style.float = "right"
+// renderer.domElement.style.float = "right"
 // document.body.appendChild(renderer.domElement);
 
 
@@ -221,3 +232,108 @@ renderer.domElement.addEventListener("click", event=>{
 });
 
 start();
+
+
+// TODO buttons
+
+const menu = document.querySelector(".menu") as HTMLDivElement;
+
+const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
+ALL_BUILD_TOOLS.forEach(t=>{
+    const b = document.createElement("button") as HTMLButtonElement;
+    b.textContent = t.name;
+    b.addEventListener("click",()=>{
+        state.tool = t;
+    });
+    buildListParent.appendChild(b);
+});
+
+const inspectListParent = document.getElementById("menu-list-inspect") as HTMLElement;
+RENDER_MODES.forEach(t=>{
+    const b = document.createElement("button") as HTMLButtonElement;
+    b.textContent = t.getName();
+    b.addEventListener("click",()=>{
+        state.renderMode = (state.renderMode == t ? undefined : t)
+    });
+    inspectListParent.appendChild(b);
+});
+inspectListParent.style.display = "none";
+
+[...menu.querySelectorAll("[data-tool]")].forEach(dt=>{
+    console.log("TOOL");
+    dt.addEventListener("click", ()=>{
+        console.log(dt.getAttribute("data-tool"));
+    })
+});
+
+[...menu.querySelectorAll("[data-action]")].forEach(dt=>{
+    console.log("TOOL");
+    dt.addEventListener("click", ()=>{
+        console.log(dt.getAttribute("data-action"));
+    })
+})
+;
+
+addClickListenerToAllWithDataAttribute(
+    menu, "data-mode",
+    (mode, elem)=>{
+        console.log("MODE", mode);
+        elem.style.border = "2px solid yellow";
+        switch(mode){
+            case "build":
+                buildListParent.style.display = "flex";
+                inspectListParent.style.display = "none";
+                break;
+            case "inspect":
+                buildListParent.style.display = "none";
+                inspectListParent.style.display = "flex";
+                break;
+        }
+    },
+    (elem)=>{
+        elem.style.border = "";
+    }
+);
+
+
+addClickListenerToAllWithDataAttribute(
+    menu, "data-tool",
+    (toolName, elem)=>{
+        console.log("TOOL", toolName);
+        const tool = ALL_TOOLS.filter(t=>t.name == toolName)[0];
+        if(tool){
+            state.tool = tool;
+        } else {
+            console.warn("Unknown tool", toolName);
+        }
+    }
+)
+
+addClickListenerToAllWithDataAttribute(
+    menu, "data-action",
+    (action, elem) => {
+        switch (action) {
+            case "zoomIn":
+                state.targetZoom /= 1.5;
+                break;
+            case "zoomOut":
+                state.targetZoom *= 1.5;
+                break;
+        }
+        console.log("ZOOM", state.targetZoom);
+    }
+)
+
+function addClickListenerToAllWithDataAttribute(root: HTMLElement, attribute: string, onClick: (value: string, elem:HTMLElement) => unknown, onDeselect?:(elem:HTMLElement)=>unknown) {
+    const elems = [...menu.querySelectorAll(`[${attribute}]`)] as HTMLElement[];
+    elems.forEach(dt => {
+        dt.addEventListener("click", evt => {
+            const value = dt.getAttribute(attribute)!;
+            onClick(value, dt);
+            if(onDeselect){
+                elems.filter(e=>e!=dt).forEach(e=>onDeselect(e));
+            }
+        });
+    });
+
+}

@@ -128,3 +128,5 @@ function update3dScene(x:number,y:number,tool:Tool, state:State){
 }
 
 export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];
+
+export const ALL_BUILD_TOOLS: Tool[] = [new RoadTool(), new ZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];

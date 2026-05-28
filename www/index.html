@@ -14,12 +14,83 @@
                 border: 2px solid green;
                 background: limegreen;
             }
+            .menu {
+                background: navy;
+                width: 600px;
+                height:150px;
+                overflow: hidden;
+                display: flex;
+            }
+            .menu-left {
+                width:150px;
+                padding:10px;
+            }
+            .camera-menu, .menu-modes{
+                list-style:none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                gap: 5px;
+            }
+            .menu-modes {
+ flex-direction: column;
+            }
+            .menu-modes li {
+                background: cyan;
+                height: 30px;
+                overflow:hidden;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .camera-menu li {
+                background: cyan;
+                width: 30px;
+                height: 30px;
+                overflow:hidden;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 60%;
+            }
+             .camera-menu li:hover,  .menu-modes li:hover {
+                background: lime;
+             }
+             .menu-right {
+                background: cyan;
+                display: flex;
+                flex-grow: 1;
+                margin: 10px 10px 10px -10px;
+             }
+             .menu-list {
+                display: flex
+             }
+             .menu-list button {
+                min-width: 80px;
+             }
         </style>
     </head>
     <body>
         <canvas width="480" height="480"></canvas>
+        <div class="menu">
+            <div class="menu-left">
+                <ul class="menu-modes">
+                    <li data-mode="build">Build</li>
+                    <li data-mode="inspect">Inspect</li>
+                    <li data-tool="Demolish">Demolish</li>
+                </ul>
+                <ul class="camera-menu">
+                    <li data-action="zoomOut">Zoom out</li>
+                    <li data-action="zoomIn">Zoom in</li>
+                    <li>Rot CW</li>
+                    <li>Rot CCW</li>
+                </ul>
+            </div>
+            <div class="menu-right"><div class="menu-list" id="menu-list-build"> </div>
+            <div class="menu-list" id="menu-list-inspect"> </div>
+            </div>
+            </div>
         <div id="tools"></div>
         <div id="render-modes"></div>
-        <script src="./js/main.js"></script>
-    </body>
-</html>
+            <script src="./js/main.js"></script>
+            </body>
+            
+            </html>

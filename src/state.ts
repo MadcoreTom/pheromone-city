@@ -56,7 +56,9 @@ export type State = {
     renderMode?: RenderMode,
     assets: {[name:string]:Mesh},
     scene: Scene,
-     camera: Camera
+     camera: OrthographicCamera,
+     targetZoom: number,
+     zoom: number
 };
 
 export interface RenderMode {
@@ -103,7 +105,9 @@ export function initState(): State {
         zones: [],
         assets: {},
         scene: new Scene(),
-        camera: new OrthographicCamera(-10,10,-10,10,0.1,100)
+        camera: new OrthographicCamera(-10,10,-10,10,0.1,100),
+        targetZoom: 1,
+        zoom: 1
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
