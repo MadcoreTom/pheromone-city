@@ -1,4 +1,4 @@
-import { Camera, Mesh, Object3D, OrthographicCamera, Scene } from "three";
+import { BackSide, Camera, Color, Material, Mesh, MeshBasicMaterial, Object3D, OrthographicCamera, Scene } from "three";
 import { Arr2 } from "./arr2";
 import { Car } from "./car";
 import { Tool } from "./tools";
@@ -58,13 +58,28 @@ export type State = {
     scene: Scene,
      camera: OrthographicCamera,
      targetZoom: number,
-     zoom: number
+     zoom: number,
+     cameraAngle: number,
+     cameraAngleTarget:number,
+     defaultMat: Material,
+     colourMats: Material[]
 };
 
 export interface RenderMode {
     getTileFill(state: State, tile: Tile): string;
     highlightCar(car: Car): boolean;
     getName(): string;
+    getPower(state: State, tile: Tile):number;
+}
+
+function createColouredMats():Material[] {
+    const result: Material[] = [];
+    const count = 100;
+    for (let i = 0; i < count; i++) {
+        const m = new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1-i / count, i / count, 0) });
+        result.push(m);
+    }
+    return result;
 }
 
 
@@ -107,7 +122,11 @@ export function initState(): State {
         scene: new Scene(),
         camera: new OrthographicCamera(-10,10,-10,10,0.1,100),
         targetZoom: 1,
-        zoom: 1
+        zoom: 1,
+        cameraAngle: -0.1,
+        cameraAngleTarget: 0,
+        defaultMat:  new MeshBasicMaterial({side:BackSide, color: new Color().setRGB(1,1,0) }),
+        colourMats: createColouredMats()
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));

@@ -69,6 +69,9 @@ class RenderModeMetric implements RenderMode {
     getName():string{
         return this.metric;
     }
+    getPower(state: State, tile: Tile): number {
+        return (255 - Math.min(255, (Math.abs(tile.buffers[state.readBuffer][this.metric]) * 10)))/255;
+    }
 }
 
 class RenderModeTraffic implements RenderMode {
@@ -83,6 +86,9 @@ class RenderModeTraffic implements RenderMode {
     }
     getName():string{
         return "Traffic";
+    }
+    getPower(state: State, tile: Tile): number {
+        return (255 - Math.min(255, tile.buffers[state.readBuffer].traffic * 20))/255;
     }
 }
 

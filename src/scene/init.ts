@@ -12,6 +12,26 @@ export async function initScene(state: State): Promise<void> {
 			state.assets[ob.name] = ob as Mesh;
 		}
 	});
+
+	assets.scene.traverse((node) => {
+    if (node instanceof Mesh && node.material) {
+        const mat = node.material;
+
+        // If it is a Standard material, make it perfectly rough/matte
+        if (mat.isMeshStandardMaterial) {
+            mat.roughness = 1.0;
+            mat.metalness = 0.0;
+        } 
+        // If it is an older Phong material, turn off shininess
+        else if (mat.isMeshPhongMaterial) {
+            mat.shininess = 0;
+            mat.specular.setScalar(0); // Sets specular colour to black
+        }
+        
+        // Tell Three.js the material needs to update
+        mat.needsUpdate = true;
+    }
+});
 	console.log("Loaded");
 }
 

@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, BackSide, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
 import { render, RENDER_MODES } from "./render";
@@ -51,8 +51,11 @@ function update(state: State, time: number) {
     }
 
     // spinning camera
-    state.camera.position.set(state.map.width/2+Math.sin(time/10000)*10,10,state.map.height/2+Math.cos(time/10000)*10);
-    state.camera.lookAt(state.map.width/2,0,state.map.height/2);
+    if (state.cameraAngle != state.cameraAngleTarget) {
+        state.cameraAngle = (state.cameraAngle * 4 + state.cameraAngleTarget)/5;
+        state.camera.position.set(state.map.width / 2 + Math.sin(state.cameraAngle * Math.PI / 2 + Math.PI / 4) * 10, 10, state.map.height / 2 + Math.cos(state.cameraAngle * Math.PI / 2 + Math.PI / 4) * 10);
+        state.camera.lookAt(state.map.width / 2, 0, state.map.height / 2);
+    }
     
     // zoom
     if(state.zoom != state.targetZoom){
@@ -62,6 +65,27 @@ function update(state: State, time: number) {
         state.camera.top = -10 * state.zoom;
         state.camera.bottom = 10 * state.zoom;
         state.camera.updateProjectionMatrix();
+    }
+
+    // 3d render modes
+    if(state.renderMode){
+        state.map.forEach((x,y,t)=>{
+            if(t.type === TileType.ROAD && t.object){
+                if(t.object instanceof Mesh){
+                    // if( t.object.material instanceof MeshBasicMaterial){
+                    //     const text = state.renderMode?.getTileFill(state,t)!;
+                    //     const [_,r,g,b] = text.split(/[rgb,)(]+/).map(s=>parseFloat(s)/255);
+                    // t.object.material.color.setRGB(r,g,b);
+
+                    // } else {
+                    //     t.object.material = new MeshBasicMaterial({side:BackSide});
+                    // }
+                    const i = Math.floor(Math.max(0,Math.min(state.colourMats.length-1, state.renderMode!.getPower(state,t) * state.colourMats.length)))
+                    t.object.material = state.colourMats[i];
+                }
+                // (t.object as Mesh).material.color.setRGB()
+            }
+        })
     }
 }
 
@@ -118,7 +142,13 @@ function initTools(state: State) {
                 rmButtons.forEach(b => b.classList = "");
                 b.classList = "tool-selected";
             } else {
+                console.log("Default")
                 state.renderMode = undefined;
+                state.map.forEach((x,y,v)=>{
+                    if(v.object && v.object instanceof Mesh){
+                        v.object!.material = state.defaultMat;
+                    }
+                })
                 b.classList = "";
             }
         });
@@ -147,24 +177,44 @@ async function start() {
     state.scene.add(cars);
 
 
-    const light = new DirectionalLight("#ffffff", 3);
+    const light = new DirectionalLight("#ffffff", 2);
     light.position.set(-8, -10, -7)
     light.lookAt(0, 0, 0);
     state.scene.add(light);
     state.scene.add(light.target)
 
     // fill light
-    const light2 = new DirectionalLight("#ffffff", 1);
+    const light2 = new DirectionalLight("#ffffff", 1.5);
     light2.position.set(8, -10, 7)
     light2.lookAt(0, 0, 0);
-    // state.scene.add(light2);
+    state.scene.add(light2);
 
-    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 1 ));
+    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 1.5 ));
 
     state.camera.position.set(10, 10, 10);
     state.camera.up.set(0, -1, 0);
     state.camera.lookAt(0, 0, 0);
 
+    // DEBUG print materials
+    const mats: Set<MeshStandardMaterial> = new Set();
+    // state.scene.traverse(o=>{
+    //     if("material" in o){
+    //         console.log(o.material);
+    //         mats.add(o.material as any);
+    //     }
+
+    // });
+    Object.values(state.assets).forEach(o => {
+        if ("material" in o) {
+            console.log(o.material);
+            mats.add(o.material as any);
+        } else {
+            console.log("NO", o)
+        }
+
+    });
+    console.log(mats);
+    state.defaultMat = [...mats][0];
 
     // hover
     const h = state.assets["select"].clone();
@@ -254,6 +304,16 @@ RENDER_MODES.forEach(t=>{
     b.textContent = t.getName();
     b.addEventListener("click",()=>{
         state.renderMode = (state.renderMode == t ? undefined : t)
+        if(!state.renderMode){
+            
+                console.log("Default")
+                state.renderMode = undefined;
+                state.map.forEach((x,y,v)=>{
+                    if(v.object && v.object instanceof Mesh){
+                        v.object!.material = state.defaultMat;
+                    }
+                })
+        }
     });
     inspectListParent.appendChild(b);
 });
@@ -318,6 +378,12 @@ addClickListenerToAllWithDataAttribute(
                 break;
             case "zoomOut":
                 state.targetZoom *= 1.5;
+                break;
+            case "rotCW":
+                state.cameraAngleTarget ++;
+                break;
+            case "rotCCW":
+                state.cameraAngleTarget --;
                 break;
         }
         console.log("ZOOM", state.targetZoom);

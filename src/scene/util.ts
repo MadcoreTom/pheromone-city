@@ -1,4 +1,4 @@
-import { Object3D } from "three";
+import { MeshBasicMaterial, Object3D } from "three";
 import { State, TileType } from "../state";
 import { FactoryZone, ShopZone } from "../zone";
 
@@ -30,6 +30,10 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
                 m.position.set(x, 0, y);
                 state.scene.add(m);
                 v.object = m;
+
+//                 m.material= new MeshBasicMaterial({
+//   color: 0x00ff00
+// });
 
             }
         } else if (v.type == TileType.ROAD) {
