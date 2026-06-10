@@ -3,6 +3,7 @@ import { Arr2 } from "./arr2";
 import { Car } from "./car";
 import { Tool } from "./tools";
 import { Zone } from "./zone";
+import { ASPECT_RATIO } from "./constants";
 
 export enum TileType {
     ROAD,
@@ -34,13 +35,13 @@ export const BLANK_TILE: Tile = {
             unemployment: -999,
             housing: -999,
             shopping: -999,
-            traffic:0
+            traffic: 0
         },
         {
             unemployment: -999,
             housing: -999,
             shopping: -999,
-            traffic:0
+            traffic: 0
         }
     ]
 };
@@ -54,29 +55,29 @@ export type State = {
     zones: Zone[],
     mouse: [number, number],
     renderMode?: RenderMode,
-    assets: {[name:string]:Mesh},
+    assets: { [name: string]: Mesh },
     scene: Scene,
-     camera: OrthographicCamera,
-     targetZoom: number,
-     zoom: number,
-     cameraAngle: number,
-     cameraAngleTarget:number,
-     defaultMat: Material,
-     colourMats: Material[]
+    camera: OrthographicCamera,
+    targetZoom: number,
+    zoom: number,
+    cameraAngle: number,
+    cameraAngleTarget: number,
+    defaultMat: Material,
+    colourMats: Material[]
 };
 
 export interface RenderMode {
     getTileFill(state: State, tile: Tile): string;
     highlightCar(car: Car): boolean;
     getName(): string;
-    getPower(state: State, tile: Tile):number;
+    getPower(state: State, tile: Tile): number;
 }
 
-function createColouredMats():Material[] {
+function createColouredMats(): Material[] {
     const result: Material[] = [];
     const count = 100;
     for (let i = 0; i < count; i++) {
-        const m = new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1-i / count, i / count, 0) });
+        const m = new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1 - i / count, i / count, 0) });
         result.push(m);
     }
     return result;
@@ -120,12 +121,12 @@ export function initState(): State {
         zones: [],
         assets: {},
         scene: new Scene(),
-        camera: new OrthographicCamera(-10,10,-10,10,0.1,100),
+        camera: new OrthographicCamera(-10 * ASPECT_RATIO, 10 * ASPECT_RATIO, -10, 10, 0.1, 100),
         targetZoom: 1,
         zoom: 1,
         cameraAngle: -0.1,
         cameraAngleTarget: 0,
-        defaultMat:  new MeshBasicMaterial({side:BackSide, color: new Color().setRGB(1,1,0) }),
+        defaultMat: new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1, 1, 0) }),
         colourMats: createColouredMats()
     }
 

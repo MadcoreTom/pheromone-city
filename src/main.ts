@@ -6,6 +6,7 @@ import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
 import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
 import { updateSceneRange } from "./scene/util";
+import { createRendererDiagnostics } from "./diagnostics";
 
 console.log("Hello main");
 
@@ -94,6 +95,7 @@ function tick(time: number) {
     update(state, time);
     render(ctx, state, time);
     renderer.render(state.scene, state.camera)
+    diagnosticsUpdate();
     window.requestAnimationFrame(tick);
 }
 
@@ -228,12 +230,14 @@ async function start() {
 // init three.js canvas
 // Renderer
 const renderer = new WebGLRenderer({ antialias: true });
-renderer.setSize(600, 600);
+renderer.setSize(800, 600);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor("#95CDE9");
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
 canvas.parentNode!.insertBefore(renderer.domElement, canvas.nextSibling)
+
+const diagnosticsUpdate = createRendererDiagnostics(renderer);
 // renderer.domElement.style.float = "right"
 // document.body.appendChild(renderer.domElement);
 

@@ -1,4 +1,5 @@
 import { Car } from "./car";
+import { TIMING } from "./constants";
 import { Metric, State, Tile, TileType } from "./state";
 
 type ScheduledCar = [number, Car];
@@ -72,17 +73,41 @@ export class HouseZone extends Zone {
             this.emitMetric(state, "housing");
         }
 
+
+        // TODO sort out this duplication
         this.cars.forEach(c=>c[0] -= delta);
         if(this.cars.length > 0 && this.cars[0][0] <= 0){
             const [_,car] = this.cars.shift()!;
             car.dead = false;// TODO rename dead to hidden
             car.chooseNextTarget();
+            // place back on a good tile
+            const options : {x:number,y:number,value:number, road:boolean}[]= [];
+            // above and below
+            for (let x = this.x; x < this.x + this.w; x++) {
+                state.map.getIf(x, this.y - 1, t=>options.push({x,y:this.y-1,value:t.buffers[state.readBuffer][car.target],road:t.type == TileType.ROAD}));
+                state.map.getIf(x, this.y + this.h,  t=>options.push({x,y:this.y+this.h,value:t.buffers[state.readBuffer][car.target],road:t.type == TileType.ROAD}));
+            }
+            // left and right
+            for (let y = this.y; y < this.y + this.h; y++) {
+                state.map.getIf(this.x - 1, y, t => options.push({ x: this.x, y, value: t.buffers[state.readBuffer][car.target] ,road:t.type == TileType.ROAD}));
+                state.map.getIf(this.x + this.w, y,  t=>options.push({x:this.x + this.w,y,value:t.buffers[state.readBuffer][car.target],road:t.type == TileType.ROAD}));
+            }
+            const best = options.filter(t=>t.road).sort((a,b)=>b.value - a.value)[0];
+            if(best){
+                car.tx = best.x;
+                car.ty = best.y;
+                console.log("BEST", best)
+            } else {
+                console.log("A car tried to leave a house but there was no road")
+            }
+
+
             state.cars.push(car);
         }
     }
 
     public enter(car:Car){
-        this.cars.push([2000,car]);
+        this.cars.push([TIMING.HOME_MS,car]);
     }
 
     public providesNeed(metric: Metric): boolean {
@@ -105,16 +130,6 @@ export class FactoryZone extends Zone {
         if (this.cars.length < this.capacity) {
             this.emitMetric(state, "unemployment");
         }
-
-        // then dump the cars out
-        // TODO do this better
-        // if (this.cars.length > 0 && Math.random() < 0.003) {
-        //     // TODO put this in the best neighbour
-        //     const c = this.cars.shift()!;
-        //     c.dead = false;
-        //     c.target = "housing"
-        //     state.cars.push(c);
-        // }
         
         this.cars.forEach(c=>c[0] -= delta);
         if(this.cars.length > 0 && this.cars[0][0] <= 0){
@@ -127,7 +142,7 @@ export class FactoryZone extends Zone {
 
 
     public enter(car:Car){
-        this.cars.push([1500,car]);
+        this.cars.push([TIMING.FACTORY_WORK_MS, car]);
     }
 
 
@@ -152,16 +167,6 @@ export class ShopZone extends Zone {
         if (this.cars.length < this.capacity) {
             this.emitMetric(state, "shopping");
         }
-
-        // then dump the cars out
-        // TODO do this better
-        // if (this.cars.length > 0 && Math.random() < 0.003) {
-        //     // TODO put this in the best neighbour
-        //     const c = this.cars.shift()!;
-        //     c.dead = false;
-        //     c.target = "housing"
-        //     state.cars.push(c);
-        // }
         
         this.cars.forEach(c=>c[0] -= delta);
         if(this.cars.length > 0 && this.cars[0][0] <= 0){
@@ -174,7 +179,7 @@ export class ShopZone extends Zone {
 
 
     public enter(car:Car){
-        this.cars.push([500,car]);
+        this.cars.push([TIMING.SHOP_SHOPPING_MS,car]);
     }
 
 
