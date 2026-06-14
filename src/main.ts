@@ -1,6 +1,6 @@
 import { AmbientLight, BackSide, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
-import { MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
+import { ASPECT_RATIO, MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
 import { render, RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
@@ -61,8 +61,8 @@ function update(state: State, time: number) {
     // zoom
     if(state.zoom != state.targetZoom){
         state.zoom = (state.zoom * 4 + state.targetZoom)/5;
-        state.camera.left = -10 * state.zoom;
-        state.camera.right = 10 * state.zoom;
+        state.camera.left = -10 * state.zoom * ASPECT_RATIO;
+        state.camera.right = 10 * state.zoom * ASPECT_RATIO;
         state.camera.top = -10 * state.zoom;
         state.camera.bottom = 10 * state.zoom;
         state.camera.updateProjectionMatrix();

@@ -1,5 +1,5 @@
 import { Car } from "./car";
-import { TIMING } from "./constants";
+import { CAR_RETRY_DELAY_MS, TIMING } from "./constants";
 import { Metric, State, Tile, TileType } from "./state";
 
 type ScheduledCar = [number, Car];
@@ -52,6 +52,47 @@ export abstract class Zone {
         state.zones = state.zones.filter(z => z !== this);
     }
 
+    protected releaseCars(state: State) {
+        const carsToReturn:ScheduledCar[] = [];
+        if (this.cars.length > 0 && this.cars[0][0] <= 0) {
+            const [_, car] = this.cars.shift()!;
+            car.chooseNextTarget();
+            // place back on a good tile
+            const options: { x: number, y: number, value: number, road: boolean }[] = [];
+            // above and below
+            for (let x = this.x; x < this.x + this.w; x++) {
+                state.map.getIf(x, this.y - 1, t => options.push({ x, y: this.y - 1, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
+                state.map.getIf(x, this.y + this.h, t => options.push({ x, y: this.y + this.h, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
+            }
+            // left and right
+            for (let y = this.y; y < this.y + this.h; y++) {
+                state.map.getIf(this.x - 1, y, t => options.push({ x: this.x, y, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
+                state.map.getIf(this.x + this.w, y, t => options.push({ x: this.x + this.w, y, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
+            }
+
+            // Sort by the target and pick the best one
+            const best = options.filter(t => t.road).sort((a, b) => b.value - a.value)[0];
+            if (best) {
+                car.tx = best.x;
+                car.ty = best.y;
+                car.x = best.x;
+                car.y = best.y;
+                console.log("BEST", best)
+                car.dead = false;// TODO rename dead to hidden
+                state.cars.push(car);
+            } else {
+                console.log("A car tried to leave a house but there was no road, try again in "), CAR_RETRY_DELAY_MS;
+                carsToReturn.push([CAR_RETRY_DELAY_MS,car])
+            }
+
+
+        }
+
+        if(carsToReturn.length > 0){
+            carsToReturn.forEach(sc=>this.cars.unshift(sc));
+        }
+    }
+
     public abstract providesNeed(metric: Metric): boolean;
 
     public abstract enter(car:Car):any;
@@ -74,36 +115,9 @@ export class HouseZone extends Zone {
         }
 
 
-        // TODO sort out this duplication
         this.cars.forEach(c=>c[0] -= delta);
-        if(this.cars.length > 0 && this.cars[0][0] <= 0){
-            const [_,car] = this.cars.shift()!;
-            car.dead = false;// TODO rename dead to hidden
-            car.chooseNextTarget();
-            // place back on a good tile
-            const options : {x:number,y:number,value:number, road:boolean}[]= [];
-            // above and below
-            for (let x = this.x; x < this.x + this.w; x++) {
-                state.map.getIf(x, this.y - 1, t=>options.push({x,y:this.y-1,value:t.buffers[state.readBuffer][car.target],road:t.type == TileType.ROAD}));
-                state.map.getIf(x, this.y + this.h,  t=>options.push({x,y:this.y+this.h,value:t.buffers[state.readBuffer][car.target],road:t.type == TileType.ROAD}));
-            }
-            // left and right
-            for (let y = this.y; y < this.y + this.h; y++) {
-                state.map.getIf(this.x - 1, y, t => options.push({ x: this.x, y, value: t.buffers[state.readBuffer][car.target] ,road:t.type == TileType.ROAD}));
-                state.map.getIf(this.x + this.w, y,  t=>options.push({x:this.x + this.w,y,value:t.buffers[state.readBuffer][car.target],road:t.type == TileType.ROAD}));
-            }
-            const best = options.filter(t=>t.road).sort((a,b)=>b.value - a.value)[0];
-            if(best){
-                car.tx = best.x;
-                car.ty = best.y;
-                console.log("BEST", best)
-            } else {
-                console.log("A car tried to leave a house but there was no road")
-            }
+        this.releaseCars(state);
 
-
-            state.cars.push(car);
-        }
     }
 
     public enter(car:Car){
@@ -131,13 +145,9 @@ export class FactoryZone extends Zone {
             this.emitMetric(state, "unemployment");
         }
         
+
         this.cars.forEach(c=>c[0] -= delta);
-        if(this.cars.length > 0 && this.cars[0][0] <= 0){
-            const [_,car] = this.cars.shift()!;
-            car.dead = false;// TODO rename dead to hidden
-            car.chooseNextTarget();
-            state.cars.push(car);
-        }
+        this.releaseCars(state);
     }
 
 
@@ -168,13 +178,9 @@ export class ShopZone extends Zone {
             this.emitMetric(state, "shopping");
         }
         
+
         this.cars.forEach(c=>c[0] -= delta);
-        if(this.cars.length > 0 && this.cars[0][0] <= 0){
-            const [_,car] = this.cars.shift()!;
-            car.dead = false;// TODO rename dead to hidden
-            car.chooseNextTarget();
-            state.cars.push(car);
-        }
+        this.releaseCars(state);
     }
 
 

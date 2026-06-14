@@ -110,13 +110,13 @@ export function initState(): State {
         }),
         cars: [
             new Car(8.5, 9.5, "unemployment"),
-            new Car(8.5, 13.5, "unemployment"),
-            new Car(8.5, 15.5, "unemployment"),
-            new Car(8.5, 9.5, "housing"),
-            new Car(8.5, 13.5, "housing"),
-            new Car(8.5, 15.5, "housing"),
-            new Car(8.5, 5.5, "housing"),
-            new Car(8.5, 10.5, "housing")
+            // new Car(8.5, 13.5, "unemployment"),
+            // new Car(8.5, 15.5, "unemployment"),
+            // new Car(8.5, 9.5, "housing"),
+            // new Car(8.5, 13.5, "housing"),
+            // new Car(8.5, 15.5, "housing"),
+            // new Car(8.5, 5.5, "housing"),
+            // new Car(8.5, 10.5, "housing")
         ],
         zones: [],
         assets: {},

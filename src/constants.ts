@@ -12,3 +12,5 @@ export const TIMING = {
 } as const;
 
 export const ASPECT_RATIO = 800 / 600;
+
+export const CAR_RETRY_DELAY_MS = 100;
