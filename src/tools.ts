@@ -1,7 +1,9 @@
 import { Car } from "./car";
 import { updateSceneRange } from "./scene/util";
-import { BLANK_TILE, State, Tile, TileType } from "./state";
-import { FactoryZone, HouseZone, ShopZone, Zone } from "./zone";
+import { BLANK_TILE, State, TileType } from "./state";
+import { FactoryZone } from "./zone/factory";
+import { HouseZone } from "./zone/house";
+import { ShopZone } from "./zone/shop";
 
 export abstract class Tool {
     public constructor(public readonly name: string, public readonly w: number = 1, public readonly h: number = 1) {
@@ -36,7 +38,7 @@ class RoadTool extends Tool {
     public onClick(state: State, x: number, y: number) {
         state.map.getIf(Math.floor(x), Math.floor(y), t => {
             t.type = TileType.ROAD;
-           update3dScene(x,y,this,state);
+            update3dScene(x, y, this, state);
         });
     }
 }
@@ -81,12 +83,12 @@ class CarTool extends Tool {
             if (t.type == TileType.ROAD) {
                 state.cars.push(new Car(x + 0.5, y + 0.5, "housing"));
             }
-        update3dScene(x,y,this,state);
+            update3dScene(x, y, this, state);
         });
     }
 
     public onHover(state: State, x: number, y: number): boolean {
-        const t = state.map.get(x,y,BLANK_TILE);
+        const t = state.map.get(x, y, BLANK_TILE);
         return t && t.type == TileType.ROAD;
     }
 }
@@ -97,10 +99,10 @@ class ZoneTool extends Tool {
     }
 
     public onClick(state: State, x: number, y: number) {
-        const z=new HouseZone(x,y,state);
-        z.cars.push( [100, new Car(0,0,"housing")]);
-        z.cars.push( [200, new Car(0,0,"housing")]);
-        update3dScene(x,y,this,state);
+        const z = new HouseZone(x, y, state);
+        z.cars.push([100, new Car(0, 0, "housing")]);
+        z.cars.push([200, new Car(0, 0, "housing")]);
+        update3dScene(x, y, this, state);
     }
 }
 
@@ -110,8 +112,8 @@ class FactoryZoneTool extends Tool {
     }
 
     public onClick(state: State, x: number, y: number) {
-        new FactoryZone(x,y,state);
-        update3dScene(x,y,this,state);
+        new FactoryZone(x, y, state);
+        update3dScene(x, y, this, state);
     }
 }
 class ShoppingZoneTool extends Tool {
@@ -120,13 +122,13 @@ class ShoppingZoneTool extends Tool {
     }
 
     public onClick(state: State, x: number, y: number) {
-        new ShopZone(x,y,state);
-        update3dScene(x,y,this,state);
+        new ShopZone(x, y, state);
+        update3dScene(x, y, this, state);
     }
 }
 
-function update3dScene(x:number,y:number,tool:Tool, state:State){
-    updateSceneRange(state,x,y,tool.w, tool.h);
+function update3dScene(x: number, y: number, tool: Tool, state: State) {
+    updateSceneRange(state, x, y, tool.w, tool.h);
 }
 
 export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];

@@ -7,6 +7,9 @@ import { initState, State, TileType } from "./state";
 import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
 import { updateSceneRange } from "./scene/util";
 import { createRendererDiagnostics } from "./diagnostics";
+import { EffectComposer, ShaderPass } from "three/examples/jsm/Addons.js";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
+import { N8AOPass } from "n8ao";
 
 console.log("Hello main");
 
@@ -63,8 +66,8 @@ function update(state: State, time: number) {
         state.zoom = (state.zoom * 4 + state.targetZoom)/5;
         state.camera.left = -10 * state.zoom * ASPECT_RATIO;
         state.camera.right = 10 * state.zoom * ASPECT_RATIO;
-        state.camera.top = -10 * state.zoom;
-        state.camera.bottom = 10 * state.zoom;
+        state.camera.top = 10 * state.zoom;
+        state.camera.bottom = -10 * state.zoom;
         state.camera.updateProjectionMatrix();
     }
 
@@ -94,7 +97,7 @@ function update(state: State, time: number) {
 function tick(time: number) {
     update(state, time);
     render(ctx, state, time);
-    renderer.render(state.scene, state.camera)
+    state.composer?.render(time);//state.scene, state.camera)
     diagnosticsUpdate();
     window.requestAnimationFrame(tick);
 }
@@ -173,28 +176,47 @@ async function start() {
 
     updateSceneRange(state,0,0,state.map.width, state.map.height);
 
+
+    // Add screen space ambient occlusion, to make up for my poor texturing
+    const composer = new EffectComposer(renderer);
+    const n8aopass = new N8AOPass(
+        state.scene,
+        state.camera,
+        window.innerWidth,
+        window.innerHeight,
+    );
+    n8aopass.configuration.aoSamples = 16;
+    n8aopass.configuration.denoiseSamples = 8;
+    n8aopass.configuration.aoRadius = 0.125;
+    n8aopass.configuration.intensity = 4;
+    composer.addPass(n8aopass);
+    const fxaaPass = new ShaderPass(FXAAShader);
+    fxaaPass.uniforms["resolution"].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+    composer.addPass(fxaaPass);
+    state.composer = composer;
+
+
     // cars
     const cars = new InstancedMesh(state.assets["car"].geometry, state.assets["car"].material, MAX_CAR_RENDER_COUNT);
     cars.name = "instanced_cars";
     state.scene.add(cars);
 
 
-    const light = new DirectionalLight("#ffffff", 2);
-    light.position.set(-8, -10, -7)
+    const light = new DirectionalLight("#ffffee", 2.4);
+    light.position.set(-8, 10, -7)
     light.lookAt(0, 0, 0);
     state.scene.add(light);
     state.scene.add(light.target)
 
     // fill light
-    const light2 = new DirectionalLight("#ffffff", 1.5);
-    light2.position.set(8, -10, 7)
+    const light2 = new DirectionalLight("#eeeeff", 1.7);
+    light2.position.set(8, 10, 7)
     light2.lookAt(0, 0, 0);
     state.scene.add(light2);
 
-    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 1.5 ));
+    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 0.3 ));
 
     state.camera.position.set(10, 10, 10);
-    state.camera.up.set(0, -1, 0);
     state.camera.lookAt(0, 0, 0);
 
     // DEBUG print materials
@@ -235,7 +257,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor("#95CDE9");
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
-canvas.parentNode!.insertBefore(renderer.domElement, canvas.nextSibling)
+canvas.parentNode!.insertBefore(renderer.domElement, canvas.nextSibling);
 
 const diagnosticsUpdate = createRendererDiagnostics(renderer);
 // renderer.domElement.style.float = "right"

@@ -1,6 +1,7 @@
 import { MeshBasicMaterial, Object3D } from "three";
 import { State, TileType } from "../state";
-import { FactoryZone, ShopZone } from "../zone";
+import { ShopZone } from "../zone/shop";
+import { FactoryZone } from "../zone/factory";
 
 export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:number=1){
 

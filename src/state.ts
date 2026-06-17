@@ -2,8 +2,9 @@ import { BackSide, Camera, Color, Material, Mesh, MeshBasicMaterial, Object3D, O
 import { Arr2 } from "./arr2";
 import { Car } from "./car";
 import { Tool } from "./tools";
-import { Zone } from "./zone";
+import { Zone } from "./zone/zone";
 import { ASPECT_RATIO } from "./constants";
+import { EffectComposer } from "three/examples/jsm/Addons.js";
 
 export enum TileType {
     ROAD,
@@ -63,7 +64,8 @@ export type State = {
     cameraAngle: number,
     cameraAngleTarget: number,
     defaultMat: Material,
-    colourMats: Material[]
+    colourMats: Material[],
+    composer?: EffectComposer
 };
 
 export interface RenderMode {
@@ -121,7 +123,7 @@ export function initState(): State {
         zones: [],
         assets: {},
         scene: new Scene(),
-        camera: new OrthographicCamera(-10 * ASPECT_RATIO, 10 * ASPECT_RATIO, -10, 10, 0.1, 100),
+        camera: new OrthographicCamera(-10 * ASPECT_RATIO, 10 * ASPECT_RATIO, 10, -10, 0.1, 100),
         targetZoom: 1,
         zoom: 1,
         cameraAngle: -0.1,
