@@ -58,16 +58,16 @@ export abstract class Zone {
             const [_, car] = this.cars.shift()!;
             car.chooseNextTarget();
             // place back on a good tile
-            const options: { x: number, y: number, value: number, road: boolean }[] = [];
+            const options: { x: number, y: number, value: number, road: boolean , dir:[number,number]}[] = [];
             // above and below
             for (let x = this.x; x < this.x + this.w; x++) {
-                state.map.getIf(x, this.y - 1, t => options.push({ x, y: this.y - 1, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
-                state.map.getIf(x, this.y + this.h, t => options.push({ x, y: this.y + this.h, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
+                state.map.getIf(x, this.y - 1, t => options.push({ x, y: this.y , value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD, dir:[0,-1] }));
+                state.map.getIf(x, this.y + this.h, t => options.push({ x, y: this.y + this.h-1, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD , dir:[0,1]}));
             }
             // left and right
             for (let y = this.y; y < this.y + this.h; y++) {
-                state.map.getIf(this.x - 1, y, t => options.push({ x: this.x, y, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
-                state.map.getIf(this.x + this.w, y, t => options.push({ x: this.x + this.w, y, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD }));
+                state.map.getIf(this.x - 1, y, t => options.push({ x: this.x, y, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD, dir: [-1, 0] }));
+                state.map.getIf(this.x + this.w, y, t => options.push({ x: this.x + this.w-1, y, value: t.buffers[state.readBuffer][car.target], road: t.type == TileType.ROAD, dir: [1,0] }));
             }
 
             // Sort by the target and pick the best one
@@ -77,8 +77,11 @@ export abstract class Zone {
                 car.ty = best.y;
                 car.x = best.x;
                 car.y = best.y;
-                console.log("BEST", best)
+                car.dx = best.dir[0];
+                car.dy = best.dir[1];
+                console.log("FIND BEST", best)
                 car.dead = false;// TODO rename dead to hidden
+                car.animation = undefined;
                 state.cars.push(car);
             } else {
                 console.log("A car tried to leave a house but there was no road, try again in "), CAR_RETRY_DELAY_MS;

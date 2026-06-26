@@ -1,4 +1,4 @@
-import { BackSide, Camera, Color, Material, Mesh, MeshBasicMaterial, Object3D, OrthographicCamera, Scene } from "three";
+import { BackSide, Camera, Color, FrontSide, Material, Mesh, MeshBasicMaterial, Object3D, OrthographicCamera, Scene } from "three";
 import { Arr2 } from "./arr2";
 import { Car } from "./car";
 import { Tool } from "./tools";
@@ -79,7 +79,7 @@ function createColouredMats(): Material[] {
     const result: Material[] = [];
     const count = 100;
     for (let i = 0; i < count; i++) {
-        const m = new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1 - i / count, i / count, 0) });
+        const m = new MeshBasicMaterial({ side: FrontSide, color: new Color().setRGB(1 - i / count, i / count, 0) });
         result.push(m);
     }
     return result;

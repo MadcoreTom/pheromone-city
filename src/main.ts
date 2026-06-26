@@ -187,8 +187,8 @@ async function start() {
     );
     n8aopass.configuration.aoSamples = 16;
     n8aopass.configuration.denoiseSamples = 8;
-    n8aopass.configuration.aoRadius = 0.125;
-    n8aopass.configuration.intensity = 4;
+    n8aopass.configuration.aoRadius = 0.12;
+    n8aopass.configuration.intensity = 6;
     composer.addPass(n8aopass);
     const fxaaPass = new ShaderPass(FXAAShader);
     fxaaPass.uniforms["resolution"].value.set(1 / window.innerWidth, 1 / window.innerHeight);

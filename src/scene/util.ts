@@ -2,6 +2,8 @@ import { MeshBasicMaterial, Object3D } from "three";
 import { State, TileType } from "../state";
 import { ShopZone } from "../zone/shop";
 import { FactoryZone } from "../zone/factory";
+import { instance } from "three/tsl";
+import { HouseZone } from "../zone/house";
 
 export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:number=1){
 
@@ -29,6 +31,7 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
             } else {
                 const m = state.assets["house"].clone();
                 m.position.set(x, 0, y);
+                m.scale.setY(v.zone instanceof HouseZone ? v.zone.height + 1 : 1)
                 state.scene.add(m);
                 v.object = m;
 

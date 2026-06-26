@@ -8,7 +8,7 @@ const SPEED = 0.002;
 
 export class Car {
   public dead = false;
-  private animation?: CarAnimation;
+  public animation?: CarAnimation;
   public yaw: number = Math.PI / 2;
   // delta
   public dx: number = 1;
@@ -40,6 +40,7 @@ export class Car {
     // TODO change to a while
     if (!this.dead && !this.animation) {
       const d = this.findNextDirection(state);
+      console.log("FIND result", Direction[d]);
       const { dx, dy } = this;
       switch (d) {
         case Direction.FWD:
@@ -71,6 +72,7 @@ export class Car {
   }
 
   private findNextDirection(state: State): Direction {
+    console.log("FIND next direction", [this.tx, this.ty], [this.dx, this.dy]);
     const { map } = state;
     const buffer = state.readBuffer;
     const { tx, ty } = this;
@@ -107,6 +109,7 @@ export class Car {
 
       if (nearZone !== undefined) {
         this.dead = true;
+        this.animation = undefined;
         (nearZone as Zone).enter(this);
       }
     }
