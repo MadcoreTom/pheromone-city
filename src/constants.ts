@@ -1,5 +1,3 @@
-export const SCALE = 20;
-
 // Traffic
 export const TRAFFIC_DECAY_RATE = 0.002;
 
@@ -11,6 +9,8 @@ export const TIMING = {
     SHOP_SHOPPING_MS: 1000
 } as const;
 
-export const ASPECT_RATIO = 800 / 600;
+export const DISPLAY_WIDTH = 1400;
+export const DISPLAY_HEIGHT = 900;
+export const ASPECT_RATIO = DISPLAY_WIDTH / DISPLAY_HEIGHT;
 
 export const CAR_RETRY_DELAY_MS = 100;

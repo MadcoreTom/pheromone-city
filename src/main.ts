@@ -1,7 +1,7 @@
 import { AmbientLight, BackSide, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
-import { ASPECT_RATIO, MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
-import { render, RENDER_MODES } from "./render";
+import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
+import { RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
 import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
@@ -10,11 +10,6 @@ import { createRendererDiagnostics } from "./diagnostics";
 import { EffectComposer, ShaderPass } from "three/examples/jsm/Addons.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { N8AOPass } from "n8ao";
-
-console.log("Hello main");
-
-const canvas = document.querySelector("canvas")!;
-const ctx = canvas.getContext("2d")!;
 
 const state: State = initState();
 
@@ -96,29 +91,11 @@ function update(state: State, time: number) {
 
 function tick(time: number) {
     update(state, time);
-    render(ctx, state, time);
     state.composer?.render(time);//state.scene, state.camera)
     diagnosticsUpdate();
     window.requestAnimationFrame(tick);
 }
 
-canvas.addEventListener("click", (evt) => {
-    const x = Math.floor(evt.offsetX / SCALE);
-    const y = Math.floor(evt.offsetY / SCALE);
-    console.log("click", x, y);
-    //   state.map.getIf( Math.floor(evt.offsetX / SCALE), Math.floor(evt.offsetY / SCALE), v=>console.log(JSON.stringify(v)));
-    // state.cars.push(new Car(x+0.5,y+0.5,"housing"));
-    if (state.tool && state.tool.onHover(state, x, y)) {
-        state.tool.onClick(state, x, y);
-    }
-});
-
-canvas.addEventListener("mousemove", (evt) => {
-    const x = Math.floor(evt.offsetX / SCALE);
-    const y = Math.floor(evt.offsetY / SCALE);
-    state.mouse[0] = x;
-    state.mouse[1] = y;
-});
 
 function initTools(state: State) {
     const div = document.getElementById("tools") as HTMLDivElement;
@@ -252,12 +229,13 @@ async function start() {
 // init three.js canvas
 // Renderer
 const renderer = new WebGLRenderer({ antialias: true });
-renderer.setSize(800, 600);
+renderer.setSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor("#95CDE9");
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
-canvas.parentNode!.insertBefore(renderer.domElement, canvas.nextSibling);
+const menuElem = document.querySelector(".menu") as HTMLElement;
+menuElem.parentNode!.insertBefore(renderer.domElement, menuElem);
 
 const diagnosticsUpdate = createRendererDiagnostics(renderer);
 // renderer.domElement.style.float = "right"
