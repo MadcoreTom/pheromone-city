@@ -7,7 +7,7 @@ enum Direction {
 const SPEED = 0.002;
 
 export class Car {
-  public dead = false;
+  public hidden = false;
   public animation?: CarAnimation;
   public yaw: number = Math.PI / 2;
   // delta
@@ -38,7 +38,7 @@ export class Car {
 
   public update(state: State, delta: number) {
     // TODO change to a while
-    if (!this.dead && !this.animation) {
+    if (!this.hidden && !this.animation) {
       const d = this.findNextDirection(state);
       console.log("FIND result", Direction[d]);
       const { dx, dy } = this;
@@ -61,7 +61,7 @@ export class Car {
       }
     }
 
-    if (this.animation && !this.dead) {
+    if (this.animation && !this.hidden) {
       const remainder = this.animation(delta);
       if (remainder > 0) {
         this.animation = undefined;
@@ -108,7 +108,7 @@ export class Car {
       state.map.getIf(tx, ty + 1, z => nearZone = z.zone && z.zone.providesNeed(this.target) ? z.zone : nearZone);
 
       if (nearZone !== undefined) {
-        this.dead = true;
+        this.hidden = true;
         this.animation = undefined;
         (nearZone as Zone).enter(this);
       }

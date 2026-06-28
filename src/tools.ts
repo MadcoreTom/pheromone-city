@@ -100,8 +100,8 @@ class ZoneTool extends Tool {
 
     public onClick(state: State, x: number, y: number) {
         const z = new HouseZone(x, y, state);
-        z.cars.push([100, new Car(0, 0, "housing")]);
-        z.cars.push([200, new Car(0, 0, "housing")]);
+        // z.cars.push([100, new Car(0, 0, "housing")]);
+        // z.cars.push([200, new Car(0, 0, "housing")]);
         update3dScene(x, y, this, state);
     }
 }

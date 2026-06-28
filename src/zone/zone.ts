@@ -80,9 +80,9 @@ export abstract class Zone {
                 car.dx = best.dir[0];
                 car.dy = best.dir[1];
                 console.log("FIND BEST", best)
-                car.dead = false;// TODO rename dead to hidden
+                car.hidden = false;
                 car.animation = undefined;
-                state.cars.push(car);
+                // state.cars.push(car);
             } else {
                 console.log("A car tried to leave a house but there was no road, try again in "), CAR_RETRY_DELAY_MS;
                 carsToReturn.push([CAR_RETRY_DELAY_MS,car])

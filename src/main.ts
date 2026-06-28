@@ -1,6 +1,6 @@
 import { AmbientLight, BackSide, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
-import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT, SCALE } from "./constants";
+import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
 import { RENDER_MODES } from "./render";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
@@ -10,6 +10,9 @@ import { createRendererDiagnostics } from "./diagnostics";
 import { EffectComposer, ShaderPass } from "three/examples/jsm/Addons.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { N8AOPass } from "n8ao";
+import { HouseZone } from "./zone/house";
+import { Zone } from "./zone/zone";
+import { Car } from "./car";
 
 const state: State = initState();
 
@@ -25,13 +28,13 @@ function update(state: State, time: number) {
 
     state.zones.forEach(z => z.update(state, delta));
     // Cars
-    state.cars = state.cars.filter((c) => !c.dead);
-    state.cars.forEach((c) => c.update(state, delta));
+    // state.cars = state.cars.filter((c) => !c.hidden);
 
-    const aliveCars = state.cars.filter(c => !c.dead);
+    const visibleCars = state.cars.filter(c => !c.hidden);
+    visibleCars.forEach((c) => c.update(state, delta));
     const ci: InstancedMesh = state.scene.getObjectByName("instanced_cars")! as InstancedMesh;
-    ci.count = aliveCars.length;
-    aliveCars.forEach((c, i) => {
+    ci.count = visibleCars.length;
+    visibleCars.forEach((c, i) => {
         const mat =  new Matrix4();
         mat.makeTranslation(c.x, 0, c.y -1);
         mat.multiply(new Matrix4().makeRotationY(c.yaw))
@@ -86,8 +89,11 @@ function update(state: State, time: number) {
             }
         })
     }
-}
 
+    if(Math.random() < 0.01){
+        calculateScore(state);
+    }
+}
 
 function tick(time: number) {
     update(state, time);
@@ -406,4 +412,44 @@ function addClickListenerToAllWithDataAttribute(root: HTMLElement, attribute: st
         });
     });
 
+}
+
+
+function calculateScore(state:State){
+    let emptyHouses = 0;
+    let emptyJobs = 0;
+    let emptyShops = 0;
+    let houses: Zone[] = [];
+    state.zones.forEach(z=>{
+        if(z.cars.length === 0) {
+            if(z.providesNeed("housing")){
+                emptyHouses++;
+                houses.push(z);
+            }
+            if(z.providesNeed("unemployment")){
+                emptyJobs++;
+            }
+            if(z.providesNeed("shopping")){
+                     emptyShops ++;
+            }
+        }
+    });
+    if(emptyHouses > 0 && emptyJobs > 0 && emptyShops > 0){
+        console.log("🔼 Looks good");
+        const carCount = state.cars.length;
+        const carsOut = state.cars.filter(c => !c.hidden).length;
+        console.log("Look cars", carCount, carsOut)
+        if (carsOut < carCount * 0.5) { // half the cars need to be in a building
+            const z = houses[Math.floor(Math.random() * houses.length)];
+            const car = new Car(z.x, z.y, "housing");
+            car.tx = car.x;
+            car.ty=car.y;
+            car.hidden = true;
+            state.cars.push(car);
+            z.enter(car);
+            console.log("Look 🚗", state.cars.length)
+        }
+    } else {
+        console.log("🔽 Looks bad")
+    }
 }
