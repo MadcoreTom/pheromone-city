@@ -1,13 +1,20 @@
-import { MeshBasicMaterial, Object3D } from "three";
+import { Group, MeshBasicMaterial, Object3D } from "three";
 import { State, TileType } from "../state";
 import { ShopZone } from "../zone/shop";
 import { FactoryZone } from "../zone/factory";
 import { instance } from "three/tsl";
 import { HouseZone } from "../zone/house";
 
-export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:number=1){
+function noise(x: number, y: number, mod: number): number {
+    let hash = Math.imul(x, 374761393) + Math.imul(y, 668265263);
+    hash = Math.imul(hash ^ (hash >>> 13), 1274126177);
+    hash = hash ^ (hash >>> 16);
+    return (hash >>> 0) % mod;
+}
 
-    state.map.forEachRange(x,y,x+w,y+h,(x, y, v) => {
+export function updateSceneRange(state: State, x: number, y: number, w: number = 1, h: number = 1) {
+
+    state.map.forEachRange(x, y, x + w, y + h, (x, y, v) => {
         v.object = removeFromParent(v.object);
 
 
@@ -35,9 +42,9 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
                 state.scene.add(m);
                 v.object = m;
 
-//                 m.material= new MeshBasicMaterial({
-//   color: 0x00ff00
-// });
+                //                 m.material= new MeshBasicMaterial({
+                //   color: 0x00ff00
+                // });
 
             }
         } else if (v.type == TileType.ROAD) {
@@ -46,10 +53,25 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
             state.scene.add(m);
             v.object = m;
         } else if (v.type == TileType.GRASS) {
-            const m = state.assets["blank"].clone();
-            m.position.set(x, 0, y);
-            state.scene.add(m);
-            v.object = m;
+            const r = noise(x, y, 4);
+            if (r < 2) {
+                const m = state.assets["blank"].clone();
+                m.position.set(x, 0, y);
+                state.scene.add(m);
+                v.object = m;
+            } else {
+                const g = new Group();
+                v.object = g;
+
+                const block = state.assets["blank"].clone();
+                block.position.set(x, 0, y);
+                g.add(block)
+                const tree = state.assets[r == 2 ? "tree1" : "tree2"].clone();
+                tree.position.set(x, 0, y);
+                g.add(tree)
+
+                state.scene.add(g);
+            }
         }
     });
 }
@@ -59,7 +81,7 @@ export function updateSceneRange(state:State, x:number,y:number, w:number=1,h:nu
  * @returns undefined if it was removed, the original object if it was unable to be removed
  */
 function removeFromParent(obj: Object3D | undefined): Object3D | undefined {
-    if(obj && obj.parent){
+    if (obj && obj.parent) {
         obj.parent.remove(obj);
         return undefined;
     }
