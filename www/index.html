@@ -4,108 +4,55 @@
 <head>
     <title>Phere</title>
     <style>
-        button {
-            border: 2px solid black;
-            background: lightgray;
-            cursor: pointer;
-            margin: 1px;
-            border-radius: 2px;
-        }
-
-        button.tool-selected {
-            border: 2px solid green;
-            background: limegreen;
-        }
-
-        .menu {
-            background: navy;
-            width: 1400px;
-            height: 150px;
-            overflow: hidden;
+        #menu-list-build {
             display: flex;
-        }
-
-        .menu-left {
-            width: 150px;
-            padding: 10px;
-        }
-
-        .camera-menu,
-        .menu-modes {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 5px;
-        }
-
-        .menu-modes {
-            flex-direction: column;
-        }
-
-        .menu-modes li {
-            background: cyan;
-            height: 30px;
-            overflow: hidden;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .camera-menu li {
-            background: cyan;
-            width: 30px;
-            height: 30px;
-            overflow: hidden;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 60%;
-        }
-
-        .camera-menu li:hover,
-        .menu-modes li:hover {
-            background: lime;
-        }
-
-        .menu-right {
-            background: cyan;
-            display: flex;
-            flex-grow: 1;
-            margin: 10px 10px 10px -10px;
-        }
-
-        .menu-list {
-            display: flex
-        }
-
-        .menu-list button {
-            min-width: 80px;
+            gap:5px;
+            align-items: stretch;
+            height: 100%;
         }
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/xp.css">
 </head>
 
 <body>
-    <div class="menu">
-        <div class="menu-left">
-            <ul class="menu-modes">
-                <li data-mode="build">Build</li>
-                <li data-mode="inspect">Inspect</li>
-                <li data-tool="Demolish">Demolish</li>
-            </ul>
-            <ul class="camera-menu">
-                <li data-action="zoomOut">➖</li>
-                <li data-action="zoomIn">➕</li>
-                <li data-action="rotCW">🔃</li>
-                <li data-action="rotCCW">🔄️</li>
-            </ul>
+    <div class="window" style="display:inline-block">
+        <div class="title-bar">
+            <div class="title-bar-text">Pheremone City</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close"></button>
+            </div>
         </div>
-        <div class="menu-right">
-            <div class="menu-list" id="menu-list-build"> </div>
-            <div class="menu-list" id="menu-list-inspect"> </div>
+        <div class="window-body">
+            <div id="replace-with-game">Loading</div>
+            <hr />
+            <div style="display:flex; gap:16px;">
+                <fieldset>
+                    <legend>Camera Controls</legend>
+                    <button data-action="zoomOut">➖</button>
+                    <button data-action="zoomIn">➕</button>
+                    <br />
+                    <button data-action="rotCW">🔃</button>
+                    <button data-action="rotCCW">🔄️</button>
+                </fieldset>
+                <fieldset>
+                    <legend>Build Tool</legend>
+                    <div id="menu-list-build">
+                        <button data-tool="Demolish">Demolish</button>
+                    </div>
+                </fieldset>
+                <fieldset  id="menu-list-inspect">
+                    <legend>Inspection View</legend>
+                </fieldset>
+            </div>
+        </div>
+        <div class="status-bar">
+            <p class="status-bar-field">Click to place a house</p>
+            <p class="status-bar-field">Citizens say "Build more houses"</p>
+            <p class="status-bar-field">Population: 99</p>
         </div>
     </div>
-    <div id="tools"></div>
-    <div id="render-modes"></div>
     <script src="./js/main.js"></script>
+
 </body>
 
 </html>

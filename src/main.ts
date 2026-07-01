@@ -1,4 +1,4 @@
-import { AmbientLight, BackSide, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
+import {  DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
 import { RENDER_MODES } from "./render";
@@ -10,7 +10,6 @@ import { createRendererDiagnostics } from "./diagnostics";
 import { EffectComposer, ShaderPass } from "three/examples/jsm/Addons.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { N8AOPass } from "n8ao";
-import { HouseZone } from "./zone/house";
 import { Zone } from "./zone/zone";
 import { Car } from "./car";
 
@@ -74,18 +73,10 @@ function update(state: State, time: number) {
         state.map.forEach((x,y,t)=>{
             if(t.type === TileType.ROAD && t.object){
                 if(t.object instanceof Mesh){
-                    // if( t.object.material instanceof MeshBasicMaterial){
-                    //     const text = state.renderMode?.getTileFill(state,t)!;
-                    //     const [_,r,g,b] = text.split(/[rgb,)(]+/).map(s=>parseFloat(s)/255);
-                    // t.object.material.color.setRGB(r,g,b);
-
-                    // } else {
-                    //     t.object.material = new MeshBasicMaterial({side:BackSide});
-                    // }
+ 
                     const i = Math.floor(Math.max(0,Math.min(state.colourMats.length-1, state.renderMode!.getPower(state,t) * state.colourMats.length)))
                     t.object.material = state.colourMats[i];
                 }
-                // (t.object as Mesh).material.color.setRGB()
             }
         })
     }
@@ -101,50 +92,6 @@ function tick(time: number) {
     diagnosticsUpdate();
     window.requestAnimationFrame(tick);
 }
-
-
-function initTools(state: State) {
-    const div = document.getElementById("tools") as HTMLDivElement;
-    const toolButtons = ALL_TOOLS.map(t => {
-        const b = document.createElement("button");
-        b.innerText = t.name;
-        b.addEventListener("click", () => {
-            console.log("Selected tool", t.name);
-            state.tool = t;
-            toolButtons.forEach(b => b.classList = "");
-            b.classList = "tool-selected";
-        });
-        return b;
-    });
-    toolButtons.forEach(t => div.appendChild(t));
-
-    // render modes
-    const div2 = document.getElementById("render-modes") as HTMLDivElement;
-    const rmButtons = RENDER_MODES.map(rm => {
-        const b = document.createElement("button");
-        b.innerText = rm.getName();
-        b.addEventListener("click", () => {
-            console.log("Selected render mode", rm.getName());
-            if (rm !== state.renderMode) {
-                state.renderMode = rm;
-                rmButtons.forEach(b => b.classList = "");
-                b.classList = "tool-selected";
-            } else {
-                console.log("Default")
-                state.renderMode = undefined;
-                state.map.forEach((x,y,v)=>{
-                    if(v.object && v.object instanceof Mesh){
-                        v.object!.material = state.defaultMat;
-                    }
-                })
-                b.classList = "";
-            }
-        });
-        return b;
-    });
-    rmButtons.forEach(t => div2.appendChild(t));
-}
-initTools(state);
 
 async function start() {
     await initScene(state);
@@ -170,7 +117,7 @@ async function start() {
     );
     n8aopass.configuration.aoSamples = 16;
     n8aopass.configuration.denoiseSamples = 8;
-    n8aopass.configuration.aoRadius = 0.12;
+    n8aopass.configuration.aoRadius = 0.15;
     n8aopass.configuration.intensity = 6;
     composer.addPass(n8aopass);
     const fxaaPass = new ShaderPass(FXAAShader);
@@ -240,8 +187,10 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor("#95CDE9");
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
-const menuElem = document.querySelector(".menu") as HTMLElement;
-menuElem.parentNode!.insertBefore(renderer.domElement, menuElem);
+// const menuElem = document.querySelector(".menu") as HTMLElement;
+// menuElem.parentNode!.insertBefore(renderer.domElement, menuElem);
+const canvasElemPlaceholder = document.getElementById("replace-with-game") as HTMLElement;
+canvasElemPlaceholder.replaceWith(renderer.domElement);
 
 const diagnosticsUpdate = createRendererDiagnostics(renderer);
 // renderer.domElement.style.float = "right"
@@ -310,64 +259,54 @@ ALL_BUILD_TOOLS.forEach(t=>{
 
 const inspectListParent = document.getElementById("menu-list-inspect") as HTMLElement;
 RENDER_MODES.forEach(t=>{
-    const b = document.createElement("button") as HTMLButtonElement;
-    b.textContent = t.getName();
-    b.addEventListener("click",()=>{
+
+    const rowElem = document.createElement("div") as HTMLDivElement;
+    rowElem.classList.add("field-row");
+
+    const inputElem = document.createElement("input") as HTMLInputElement;
+    inputElem.id = "tool-" + t.getName();
+    inputElem.type = "radio"
+    inputElem.name = "inspect-mode-radios"
+    rowElem.appendChild(inputElem);
+
+    const labelElem = document.createElement("label") as HTMLLabelElement;
+    labelElem.setAttribute("for", inputElem.id);
+    labelElem.textContent = t.getName();
+    rowElem.appendChild(labelElem);
+
+    inputElem.addEventListener("change", () => {
         state.renderMode = (state.renderMode == t ? undefined : t)
-        if(!state.renderMode){
-            
-                console.log("Default")
-                state.renderMode = undefined;
-                state.map.forEach((x,y,v)=>{
-                    if(v.object && v.object instanceof Mesh){
-                        v.object!.material = state.defaultMat;
-                    }
-                })
+        if (!state.renderMode) {
+            console.log("Default")
+            state.renderMode = undefined;
+            state.map.forEach((x, y, v) => {
+                if (v.object && v.object instanceof Mesh) {
+                    v.object!.material = state.defaultMat;
+                }
+            })
         }
     });
-    inspectListParent.appendChild(b);
+    console.log("ADD", rowElem, "to", inspectListParent)
+    inspectListParent.appendChild(rowElem);
 });
-inspectListParent.style.display = "none";
 
-[...menu.querySelectorAll("[data-tool]")].forEach(dt=>{
+
+[...document.querySelectorAll("[data-tool]")].forEach(dt=>{
     console.log("TOOL");
     dt.addEventListener("click", ()=>{
         console.log(dt.getAttribute("data-tool"));
     })
 });
 
-[...menu.querySelectorAll("[data-action]")].forEach(dt=>{
+[...document.querySelectorAll("[data-action]")].forEach(dt=>{
     console.log("TOOL");
     dt.addEventListener("click", ()=>{
         console.log(dt.getAttribute("data-action"));
     })
-})
-;
+});
 
 addClickListenerToAllWithDataAttribute(
-    menu, "data-mode",
-    (mode, elem)=>{
-        console.log("MODE", mode);
-        elem.style.border = "2px solid yellow";
-        switch(mode){
-            case "build":
-                buildListParent.style.display = "flex";
-                inspectListParent.style.display = "none";
-                break;
-            case "inspect":
-                buildListParent.style.display = "none";
-                inspectListParent.style.display = "flex";
-                break;
-        }
-    },
-    (elem)=>{
-        elem.style.border = "";
-    }
-);
-
-
-addClickListenerToAllWithDataAttribute(
-    menu, "data-tool",
+    document, "data-tool",
     (toolName, elem)=>{
         console.log("TOOL", toolName);
         const tool = ALL_TOOLS.filter(t=>t.name == toolName)[0];
@@ -380,7 +319,7 @@ addClickListenerToAllWithDataAttribute(
 )
 
 addClickListenerToAllWithDataAttribute(
-    menu, "data-action",
+    document, "data-action",
     (action, elem) => {
         switch (action) {
             case "zoomIn":
@@ -396,12 +335,11 @@ addClickListenerToAllWithDataAttribute(
                 state.cameraAngleTarget --;
                 break;
         }
-        console.log("ZOOM", state.targetZoom);
     }
 )
 
-function addClickListenerToAllWithDataAttribute(root: HTMLElement, attribute: string, onClick: (value: string, elem:HTMLElement) => unknown, onDeselect?:(elem:HTMLElement)=>unknown) {
-    const elems = [...menu.querySelectorAll(`[${attribute}]`)] as HTMLElement[];
+function addClickListenerToAllWithDataAttribute(root: HTMLElement | Document, attribute: string, onClick: (value: string, elem:HTMLElement) => unknown, onDeselect?:(elem:HTMLElement)=>unknown) {
+    const elems = [...root.querySelectorAll(`[${attribute}]`)] as HTMLElement[];
     elems.forEach(dt => {
         dt.addEventListener("click", evt => {
             const value = dt.getAttribute(attribute)!;
