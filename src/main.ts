@@ -385,7 +385,7 @@ function calculateScore(state:State){
             car.hidden = true;
             state.cars.push(car);
             z.enter(car);
-            console.log("Look 🚗", state.cars.length)
+            document.getElementById("population-status")!.textContent = `Population: ${state.cars.length}`
         }
     } else {
         console.log("🔽 Looks bad")
