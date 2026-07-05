@@ -1,4 +1,4 @@
-import {  DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
+import {  AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
 import { RENDER_MODES } from "./render";
@@ -136,22 +136,35 @@ async function start() {
     // cars
     const cars = new InstancedMesh(state.assets["car"].geometry, state.assets["car"].material, MAX_CAR_RENDER_COUNT);
     cars.name = "instanced_cars";
+    cars.castShadow = true;
     state.scene.add(cars);
 
 
     const light = new DirectionalLight("#ffffee", 2.4);
-    light.position.set(-8, 10, -7)
+    light.position.set(-8, 15, -5)
     light.lookAt(0, 0, 0);
+    light.castShadow = true;
+    light.shadow.camera.left = -15;
+    light.shadow.camera.right = 15;
+    light.shadow.camera.top = 25;
+    light.shadow.camera.bottom = -15;
+    light.shadow.camera.near = 5;
+    light.shadow.camera.far = 55;
+    light.shadow.mapSize.width = 2048;
+    light.shadow.mapSize.height = 2048;
+    light.shadow.bias = -0.001;
+    // light.shadow.normalBias = 0.02;
     state.scene.add(light);
     state.scene.add(light.target)
 
     // fill light
-    const light2 = new DirectionalLight("#eeeeff", 1.7);
+    const light2 = new DirectionalLight("#eeeeff", 1.5);
     light2.position.set(8, 10, 7)
     light2.lookAt(0, 0, 0);
     state.scene.add(light2);
 
-    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 0.3 ));
+    state.scene.add(new HemisphereLight( 0x8888ff, 0x444444, 0.5 ));
+    state.scene.add(new AmbientLight(0xFFFFFF,0.2))
 
     state.camera.position.set(10, 10, 10);
     state.camera.lookAt(0, 0, 0);
@@ -192,8 +205,8 @@ const renderer = new WebGLRenderer({ antialias: true });
 renderer.setSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor("#95CDE9");
-// renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = PCFShadowMap; //  Makes shadow edges smoother
 // const menuElem = document.querySelector(".menu") as HTMLElement;
 // menuElem.parentNode!.insertBefore(renderer.domElement, menuElem);
 const canvasElemPlaceholder = document.getElementById("replace-with-game") as HTMLElement;
