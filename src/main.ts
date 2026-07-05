@@ -71,7 +71,14 @@ function update(state: State, time: number) {
     // 3d render modes
     if(state.renderMode){
         state.map.forEach((x,y,t)=>{
-            if(t.type === TileType.ROAD && t.object){
+            if (state.renderMode?.getName() == "Pollution" && !t.zone) { // TODO add a property to the render mode
+                const i = Math.floor(Math.max(0, Math.min(state.colourMats.length - 1, state.renderMode!.getPower(state, t) * state.colourMats.length)))
+                t.object!.traverse(ob => {
+                    if (ob instanceof Mesh) {
+                        ob.material = state.colourMats[i];
+                    }
+                })
+            } else if (t.type === TileType.ROAD && t.object){
                 if(t.object instanceof Mesh){
  
                     const i = Math.floor(Math.max(0,Math.min(state.colourMats.length-1, state.renderMode!.getPower(state,t) * state.colourMats.length)))
@@ -275,15 +282,21 @@ RENDER_MODES.forEach(t=>{
     rowElem.appendChild(labelElem);
 
     inputElem.addEventListener("change", () => {
+        // clear
+        state.map.forEach((x, y, v) => {
+            if (v.object) {
+                v.object.traverse(o => {
+                    if (o instanceof Mesh) {
+                        o.material = state.defaultMat;
+                    }
+                })
+            }
+        })
+        // set
         state.renderMode = (state.renderMode == t ? undefined : t)
         if (!state.renderMode) {
-            console.log("Default")
             state.renderMode = undefined;
-            state.map.forEach((x, y, v) => {
-                if (v.object && v.object instanceof Mesh) {
-                    v.object!.material = state.defaultMat;
-                }
-            })
+
         }
     });
     console.log("ADD", rowElem, "to", inspectListParent)

@@ -16,6 +16,7 @@ export type TileBuffer = {
     housing: number;
     shopping: number;
     traffic: number;
+    pollution: number;
 };
 
 export type Metric = keyof TileBuffer;
@@ -36,13 +37,15 @@ export const BLANK_TILE: Tile = {
             unemployment: -999,
             housing: -999,
             shopping: -999,
-            traffic: 0
+            traffic: 0,
+            pollution: -999
         },
         {
             unemployment: -999,
             housing: -999,
             shopping: -999,
-            traffic: 0
+            traffic: 0,
+            pollution: -999
         }
     ]
 };
@@ -69,7 +72,6 @@ export type State = {
 };
 
 export interface RenderMode {
-    getTileFill(state: State, tile: Tile): string;
     highlightCar(car: Car): boolean;
     getName(): string;
     getPower(state: State, tile: Tile): number;
@@ -99,26 +101,21 @@ export function initState(): State {
                         unemployment: -999,
                         housing: -999,
                         shopping: -999.,
-                        traffic: 0
+                        traffic: 0,
+                        pollution: -999
                     },
                     {
                         unemployment: -999,
                         housing: -999,
                         shopping: -999,
-                        traffic: 0
+                        traffic: 0,
+                        pollution: -999
                     }
                 ]
             };
         }),
         cars: [
             new Car(8.5, 9.5, "unemployment"),
-            // new Car(8.5, 13.5, "unemployment"),
-            // new Car(8.5, 15.5, "unemployment"),
-            // new Car(8.5, 9.5, "housing"),
-            // new Car(8.5, 13.5, "housing"),
-            // new Car(8.5, 15.5, "housing"),
-            // new Car(8.5, 5.5, "housing"),
-            // new Car(8.5, 10.5, "housing")
         ],
         zones: [],
         assets: {},

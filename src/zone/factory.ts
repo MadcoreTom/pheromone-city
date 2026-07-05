@@ -15,7 +15,7 @@ export class FactoryZone extends Zone {
         if (this.cars.length < this.capacity) {
             this.emitMetric(state, "unemployment");
         }
-        
+        this.emitPolution(state);
 
         this.cars.forEach(c=>c[0] -= delta);
         this.releaseCars(state);
@@ -24,6 +24,15 @@ export class FactoryZone extends Zone {
 
     public enter(car:Car){
         this.cars.push([TIMING.FACTORY_WORK_MS, car]);
+    }
+
+    private emitPolution(state: State): void {
+        state.map.forEachRange(
+            this.x, this.y, this.x + this.w, this.y + this.h,
+            (x,y,v)=>{
+                v.buffers[state.writeBuffer].pollution = 0;
+            }
+        )
     }
 
 

@@ -6,15 +6,17 @@ export function blur(state: State, delta: number) {
     map.forEachWithNeighbours(
         BLANK_TILE,
         (x, y, v, l, u, r, d) => {
-            if (v.type != TileType.ROAD) {
-                return;
-            }
             const lv = l.buffers[readBuffer];
             const uv = u.buffers[readBuffer];
             const rv = r.buffers[readBuffer];
             const dv = d.buffers[readBuffer];
             const cur = v.buffers[readBuffer];
             const trafficEffect = 1+cur.traffic / 4;
+            v.buffers[writeBuffer].pollution =
+                Math.max(cur.pollution, lv.pollution, uv.pollution, rv.pollution, dv.pollution) - 1;
+            if (v.type != TileType.ROAD) {
+                return;
+            }
             v.buffers[writeBuffer].unemployment =
                 Math.max(cur.unemployment, lv.unemployment, uv.unemployment, rv.unemployment, dv.unemployment) - trafficEffect;
             v.buffers[writeBuffer].housing =
