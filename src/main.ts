@@ -1,7 +1,7 @@
 import {  AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
-import { RENDER_MODES } from "./render";
+import { RENDER_MODES } from "./render-mode";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
 import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
@@ -278,20 +278,21 @@ ALL_BUILD_TOOLS.forEach(t=>{
 });
 
 const inspectListParent = document.getElementById("menu-list-inspect") as HTMLElement;
-RENDER_MODES.forEach(t=>{
+[null, ...RENDER_MODES].forEach(mode => {
 
     const rowElem = document.createElement("div") as HTMLDivElement;
     rowElem.classList.add("field-row");
 
     const inputElem = document.createElement("input") as HTMLInputElement;
-    inputElem.id = "tool-" + t.getName();
+    inputElem.id = "tool-" + (mode? mode.getName(): "normal");
     inputElem.type = "radio"
     inputElem.name = "inspect-mode-radios"
+    inputElem.checked = !mode;
     rowElem.appendChild(inputElem);
 
     const labelElem = document.createElement("label") as HTMLLabelElement;
     labelElem.setAttribute("for", inputElem.id);
-    labelElem.textContent = t.getName();
+    labelElem.textContent = mode? mode.getName(): "Normal";
     rowElem.appendChild(labelElem);
 
     inputElem.addEventListener("change", () => {
@@ -306,7 +307,7 @@ RENDER_MODES.forEach(t=>{
             }
         })
         // set
-        state.renderMode = (state.renderMode == t ? undefined : t)
+        state.renderMode = mode ? mode : undefined
         if (!state.renderMode) {
             state.renderMode = undefined;
 
