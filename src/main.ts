@@ -1,9 +1,10 @@
-import {  AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Plane, Ray, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
+import {  AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Scene, WebGLRenderer } from "three";
 import { blur } from "./blur";
-import { ASPECT_RATIO, DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
+import { DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
 import { RENDER_MODES } from "./render-mode";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
+import { setMouseFromEventIn3dScene, updateCamera } from "./camera";
 import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
 import { updateSceneRange } from "./scene/util";
 import { createRendererDiagnostics } from "./diagnostics";
@@ -51,22 +52,7 @@ function update(state: State, time: number) {
         hov.visible = false;
     }
 
-    // spinning camera
-    if (state.cameraAngle != state.cameraAngleTarget) {
-        state.cameraAngle = (state.cameraAngle * 4 + state.cameraAngleTarget)/5;
-        state.camera.position.set(state.map.width / 2 + Math.sin(state.cameraAngle * Math.PI / 2 + Math.PI / 4) * 10, 10, state.map.height / 2 + Math.cos(state.cameraAngle * Math.PI / 2 + Math.PI / 4) * 10);
-        state.camera.lookAt(state.map.width / 2, 0, state.map.height / 2);
-    }
-    
-    // zoom
-    if(state.zoom != state.targetZoom){
-        state.zoom = (state.zoom * 4 + state.targetZoom)/5;
-        state.camera.left = -10 * state.zoom * ASPECT_RATIO;
-        state.camera.right = 10 * state.zoom * ASPECT_RATIO;
-        state.camera.top = 10 * state.zoom;
-        state.camera.bottom = -10 * state.zoom;
-        state.camera.updateProjectionMatrix();
-    }
+    updateCamera(state);
 
     // 3d render modes
     if(state.renderMode){
@@ -217,46 +203,30 @@ const diagnosticsUpdate = createRendererDiagnostics(renderer);
 // document.body.appendChild(renderer.domElement);
 
 
-// clicky
-const clickyPlane = new Plane(new Vector3(0,1,0), 0);
-const raycaster = new Raycaster();
-const mathRay = new Ray();
-
-function setMouseFromEventIn3dScne(event:MouseEvent){
-    const rect = renderer.domElement.getBoundingClientRect();
-
-    // Convert screen pixels to Normalized Device Coordinates (-1 to +1)
-    const  mouse = new Vector2();
-    mouse.x = ((event.offsetX) / rect.width) * 2 - 1;
-    mouse.y = -((event.offsetY) / rect.height) * 2 + 1;
-
-    // 3. Update the raycaster using your Orthographic Camera
-    raycaster.setFromCamera(mouse, state.camera);
-
-    // 4. Extract the underlying, pure mathematical THREE.Ray
-    // This ray updates its origin and direction automatically!
-    mathRay.copy(raycaster.ray);
-    
-    const pt = new Vector3(9,9,9)
-    const hit = mathRay.intersectPlane(clickyPlane, pt);
-    if(hit ){
-        state.mouse = [Math.floor(pt.x), Math.floor(pt.z)+1];
-        // state.tool.onHover(state,Math.round(pt.x), Math.round(pt.z))
-    }
-    // consol
-}
-
 renderer.domElement.addEventListener("mousemove", event=>{
-    setMouseFromEventIn3dScne(event);
+    setMouseFromEventIn3dScene(event, state);
     if(state.tool){
         state.tool.onHover(state, state.mouse[0], state.mouse[1])
     }
 });
 
 renderer.domElement.addEventListener("click", event=>{
-    setMouseFromEventIn3dScne(event);
+    setMouseFromEventIn3dScene(event, state);
     if(state.tool && state.tool.onHover(state, state.mouse[0], state.mouse[1])){
         state.tool.onClick(state, state.mouse[0], state.mouse[1])
+    }
+});
+
+renderer.domElement.addEventListener("contextmenu", event => {
+    event.preventDefault();
+    state.focusedTile = [state.mouse[0], state.mouse[1]];
+});
+
+renderer.domElement.addEventListener("wheel", event => {
+    if (event.deltaY < 0) {
+        state.targetZoom /= 1.5;
+    } else {
+        state.targetZoom *= 1.5;
     }
 });
 

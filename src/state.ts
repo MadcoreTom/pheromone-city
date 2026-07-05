@@ -58,6 +58,7 @@ export type State = {
     tool?: Tool;
     zones: Zone[],
     mouse: [number, number],
+    focusedTile: [number, number],
     renderMode?: RenderMode,
     assets: { [name: string]: Mesh },
     scene: Scene,
@@ -91,6 +92,7 @@ function createColouredMats(): Material[] {
 export function initState(): State {
     const state: State = {
         mouse: [0, 0],
+        focusedTile: [0, 0],
         writeBuffer: 0,
         readBuffer: 1,
         map: new Arr2<Tile>(20, 20, (x, y) => {
@@ -137,6 +139,8 @@ export function initState(): State {
     state.map.forEachRange(5, 15, 12, 16, (x, y, v) => (v.type = TileType.ROAD));
 
     // state.zones.push(new Zone(1, 9, 3, 3, state));
+
+    state.focusedTile = [state.map.width / 2, state.map.height / 2];
 
     return state;
 }
