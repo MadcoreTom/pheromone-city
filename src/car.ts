@@ -44,7 +44,7 @@ export class Car {
       const { dx, dy } = this;
       switch (d) {
         case Direction.FWD:
-          this.animation = straight(this, dx, dy);
+          this.animation = straight(this, dx, dy, state);
           break;
         case Direction.LEFT:
           // this.animation = straight(this, dy, -dx);
@@ -156,14 +156,15 @@ const CIRCUMFERENCE_SMALL = 2 * Math.PI * RAD_SMALL / 4;
 const CIRCUMFERENCE_LARGE = 2 * Math.PI * RAD_LARGE / 4;
 
 
-function straight(car: Car, dx: number, dy: number): CarAnimation {
+function straight(car: Car, dx: number, dy: number, state:State): CarAnimation {
   const sx = car.tx + (dx < 0 ? 1 : 0);
   const sy = car.ty + (dy < 0 ? 1 : 0);
   const ox = dx == 0 ? (dy > 0 ? RAD_SMALL : RAD_LARGE) : 0;
   const oy = dy == 0 ? (dx < 0 ? RAD_SMALL : RAD_LARGE) : 0;
+  const sMult = Math.max(2/Math.max(2,Math.abs(state.map.get(car.tx, car.ty, BLANK_TILE).buffers[state.readBuffer].traffic)),0.33)
   let time = 0;
   return function (delta: number) {
-    time += delta;
+    time += delta * sMult;
     car.x = sx + ox + SPEED * time * dx;
     car.y = sy + oy + SPEED * time * dy;
     const r = Math.max(0, time * SPEED - 1);

@@ -11,7 +11,7 @@ export function blur(state: State, delta: number) {
             const rv = r.buffers[readBuffer];
             const dv = d.buffers[readBuffer];
             const cur = v.buffers[readBuffer];
-            const trafficEffect = 1+cur.traffic / 4;
+            const trafficEffect = 1 + cur.traffic / 6;
             v.buffers[writeBuffer].pollution =
                 Math.max(cur.pollution, lv.pollution, uv.pollution, rv.pollution, dv.pollution) - 1;
             if (v.type != TileType.ROAD) {
@@ -24,12 +24,12 @@ export function blur(state: State, delta: number) {
             v.buffers[writeBuffer].shopping =
                 Math.max(cur.shopping, lv.shopping, uv.shopping, rv.shopping, dv.shopping) - trafficEffect;
 
-                // traffic blurs differently
-                // tODO not framerate independent
-                // decay current traffic value
-                const t = Math.max(0, cur.traffic - (delta * TRAFFIC_DECAY_RATE));
-                // then blue
-                v.buffers[writeBuffer].traffic = Math.max(t,Math.max(lv.traffic, uv.traffic,rv.traffic,dv.traffic) / 2.7);
+            // traffic blurs differently
+            // tODO not framerate independent
+            // decay current traffic value
+            const t = Math.max(0, cur.traffic - (delta * TRAFFIC_DECAY_RATE));
+            // then blue
+            v.buffers[writeBuffer].traffic = v.buffers[readBuffer].traffic  * 0.99;
         }
     );
 }
