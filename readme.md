@@ -1,16 +1,31 @@
 # Systems
 
+## Goal
+
+The goal is to reach a high population count.
+
+Cars will spawn if there is
+* at least one completely empty house
+* at least one completely empty job
+* at least one completely empty house
+* at least 50% of the cars are in a building (so cars aren't added when there's overwhelming traffic)
+* the random timer fires
+
+## Metrics
+
 # Traffic
 
-Affected as cars use tiles. blurs to neighbouring tiles.
+Affected as cars use road tiles, and slows other cars.
 
-Used in calculation of decay of other metrics.
+Traffic is considered for pathfinding, so the other "pheremones" like housing don't propogate through it well.
 
-Used to deter cars from routing via high-traffic areas
+Ultimately, this is to punish poor road planning
 
 # Housing
 
-emitted by houses with at least one vacant position
+Emitted by houses with at least one vacant position.
+
+Houses get taller depending on inhabitant count
 
 # Factory
 
@@ -27,6 +42,18 @@ house -> work
 
 work -> shop or house
 
-show -> house
+shop -> house
 
-> TODO make thet shopping based on an internal value of prodduct
+
+# TODOs
+
+- Specific road models for tiles
+    - dead end
+    - straight
+    - corner
+    - T intersection
+    - X intersection
+- Dynamic placement (based on rand(x,y)) of models in a housing zone
+- Events - things like "I couldn't find a shop" or "I've been driving for 40 seconds" could appear in the status bar
+- Player's Money - when cars finish work, they give you some budget
+- make thet shopping based on an internal value of prodduct

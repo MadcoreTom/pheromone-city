@@ -1,18 +1,16 @@
-import {  AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Scene, WebGLRenderer } from "three";
+import { AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Scene, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
-import { RENDER_MODES } from "./render-mode";
 import { initScene } from "./scene/init";
 import { initState, State, TileType } from "./state";
 import { setMouseFromEventIn3dScene, updateCamera } from "./camera";
-import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
+import { ALL_TOOLS } from "./tools";
 import { updateSceneRange } from "./scene/util";
 import { createRendererDiagnostics } from "./diagnostics";
 import { EffectComposer, ShaderPass } from "three/examples/jsm/Addons.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { N8AOPass } from "n8ao";
-import { Zone } from "./zone/zone";
-import { Car } from "./car";
+import { initUI, updateScore } from "./ui";
 
 const state: State = initState();
 
@@ -75,7 +73,7 @@ function update(state: State, time: number) {
     }
 
     if(Math.random() < 0.01){
-        calculateScore(state);
+        updateScore(state);
     }
 }
 
@@ -231,160 +229,5 @@ renderer.domElement.addEventListener("wheel", event => {
 });
 
 start();
+initUI(state);
 
-
-// TODO buttons
-
-const menu = document.querySelector(".menu") as HTMLDivElement;
-
-const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
-ALL_BUILD_TOOLS.forEach(t=>{
-    const b = document.createElement("button") as HTMLButtonElement;
-    b.textContent = t.name;
-    b.addEventListener("click",()=>{
-        state.tool = t;
-    });
-    buildListParent.appendChild(b);
-});
-
-const inspectListParent = document.getElementById("menu-list-inspect") as HTMLElement;
-[null, ...RENDER_MODES].forEach(mode => {
-
-    const rowElem = document.createElement("div") as HTMLDivElement;
-    rowElem.classList.add("field-row");
-
-    const inputElem = document.createElement("input") as HTMLInputElement;
-    inputElem.id = "tool-" + (mode? mode.getName(): "normal");
-    inputElem.type = "radio"
-    inputElem.name = "inspect-mode-radios"
-    inputElem.checked = !mode;
-    rowElem.appendChild(inputElem);
-
-    const labelElem = document.createElement("label") as HTMLLabelElement;
-    labelElem.setAttribute("for", inputElem.id);
-    labelElem.textContent = mode? mode.getName(): "Normal";
-    rowElem.appendChild(labelElem);
-
-    inputElem.addEventListener("change", () => {
-        // clear
-        state.map.forEach((x, y, v) => {
-            if (v.object) {
-                v.object.traverse(o => {
-                    if (o instanceof Mesh) {
-                        o.material = state.defaultMat;
-                    }
-                })
-            }
-        })
-        // set
-        state.renderMode = mode ? mode : undefined
-        if (!state.renderMode) {
-            state.renderMode = undefined;
-
-        }
-    });
-    console.log("ADD", rowElem, "to", inspectListParent)
-    inspectListParent.appendChild(rowElem);
-});
-
-
-[...document.querySelectorAll("[data-tool]")].forEach(dt=>{
-    console.log("TOOL");
-    dt.addEventListener("click", ()=>{
-        console.log(dt.getAttribute("data-tool"));
-    })
-});
-
-[...document.querySelectorAll("[data-action]")].forEach(dt=>{
-    console.log("TOOL");
-    dt.addEventListener("click", ()=>{
-        console.log(dt.getAttribute("data-action"));
-    })
-});
-
-addClickListenerToAllWithDataAttribute(
-    document, "data-tool",
-    (toolName, elem)=>{
-        console.log("TOOL", toolName);
-        const tool = ALL_TOOLS.filter(t=>t.name == toolName)[0];
-        if(tool){
-            state.tool = tool;
-        } else {
-            console.warn("Unknown tool", toolName);
-        }
-    }
-)
-
-addClickListenerToAllWithDataAttribute(
-    document, "data-action",
-    (action, elem) => {
-        switch (action) {
-            case "zoomIn":
-                state.targetZoom /= 1.5;
-                break;
-            case "zoomOut":
-                state.targetZoom *= 1.5;
-                break;
-            case "rotCW":
-                state.cameraAngleTarget ++;
-                break;
-            case "rotCCW":
-                state.cameraAngleTarget --;
-                break;
-        }
-    }
-)
-
-function addClickListenerToAllWithDataAttribute(root: HTMLElement | Document, attribute: string, onClick: (value: string, elem:HTMLElement) => unknown, onDeselect?:(elem:HTMLElement)=>unknown) {
-    const elems = [...root.querySelectorAll(`[${attribute}]`)] as HTMLElement[];
-    elems.forEach(dt => {
-        dt.addEventListener("click", evt => {
-            const value = dt.getAttribute(attribute)!;
-            onClick(value, dt);
-            if(onDeselect){
-                elems.filter(e=>e!=dt).forEach(e=>onDeselect(e));
-            }
-        });
-    });
-
-}
-
-
-function calculateScore(state:State){
-    let emptyHouses = 0;
-    let emptyJobs = 0;
-    let emptyShops = 0;
-    let houses: Zone[] = [];
-    state.zones.forEach(z=>{
-        if(z.cars.length === 0) {
-            if(z.providesNeed("housing")){
-                emptyHouses++;
-                houses.push(z);
-            }
-            if(z.providesNeed("unemployment")){
-                emptyJobs++;
-            }
-            if(z.providesNeed("shopping")){
-                     emptyShops ++;
-            }
-        }
-    });
-    if(emptyHouses > 0 && emptyJobs > 0 && emptyShops > 0){
-        console.log("🔼 Looks good");
-        const carCount = state.cars.length;
-        const carsOut = state.cars.filter(c => !c.hidden).length;
-        console.log("Look cars", carCount, carsOut)
-        if (carsOut < carCount * 0.5) { // half the cars need to be in a building
-            const z = houses[Math.floor(Math.random() * houses.length)];
-            const car = new Car(z.x, z.y, "housing");
-            car.tx = car.x;
-            car.ty=car.y;
-            car.hidden = true;
-            state.cars.push(car);
-            z.enter(car);
-            document.getElementById("population-status")!.textContent = `Population: ${state.cars.length}`
-        }
-    } else {
-        console.log("🔽 Looks bad")
-    }
-}
