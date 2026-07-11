@@ -1,5 +1,5 @@
 import { Mesh } from "three";
-import { ALL_BUILD_TOOLS, ALL_TOOLS } from "./tools";
+import {  ALL_TOOLS } from "./tools";
 import { RENDER_MODES } from "./render-mode";
 import { State } from "./state";
 import { Zone } from "./zone/zone";
@@ -7,13 +7,22 @@ import { Car } from "./car";
 
 export function initUI(state: State): void {
     const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
-    ALL_BUILD_TOOLS.forEach(t => {
+    const allToolButtons: HTMLButtonElement[] = [];
+    ALL_TOOLS.forEach(t => {
         const b = document.createElement("button") as HTMLButtonElement;
-        b.innerHTML = `${t.name}<br/>$${t.cost}`;
+        let html = `<img src="icons/${t.icon}" width="20" alt="${t.name}"/><br/>`;
+        if (t.cost != 0) {
+            html += `$${t.cost}<br/>`;
+        }
+        html += t.name;
+        b.innerHTML = html;
         b.addEventListener("click", () => {
             state.tool = t;
+            allToolButtons.forEach(bb=>bb.disabled = false);
+            b.disabled = true;
         });
         buildListParent.appendChild(b);
+        allToolButtons.push(b);
     });
 
     const inspectListParent = document.getElementById("menu-list-inspect") as HTMLElement;

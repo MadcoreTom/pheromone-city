@@ -31,6 +31,21 @@
         #menu-list-inspect .field-row{
             margin: 0;
         }
+        .camera-controls  {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 100px;
+            align-items: stretch;
+        }
+        .camera-controls button {
+            min-width: 26%;
+            flex-grow: 1;
+        }
+        button:disabled{
+            background: #e4e4dc;
+            color: black;
+            border: none;
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/xp.css">
 </head>
@@ -47,18 +62,17 @@
             <div id="replace-with-game">Loading</div>
             <hr />
             <div style="display:flex; gap:16px;">
-                <fieldset>
+                <fieldset class="camera-controls">
                     <legend>Camera Controls</legend>
-                    <button data-action="zoomOut">➖</button>
-                    <button data-action="zoomIn">➕</button>
+                    <button data-action="zoomOut"><img src="icons/magnifying-glass-minus.svg" alt="zoom out" width="20"/></button>
+                    <button data-action="zoomIn"><img src="icons/magnifying-glass-plus.svg" alt="zoom in" width="20"/></button>
                     <br />
-                    <button data-action="rotCW">🔃</button>
-                    <button data-action="rotCCW">🔄️</button>
+                    <button data-action="rotCW"><img src="icons/arrow-rotate-right.svg" alt="rotate clockwise" width="20"/></button>
+                    <button data-action="rotCCW"><img src="icons/arrow-rotate-left.svg" alt="rotate counter-clockwise" width="20"/></button>
                 </fieldset>
                 <fieldset>
                     <legend>Build Tool</legend>
                     <div id="menu-list-build">
-                        <button data-tool="Demolish">Demolish</button>
                     </div>
                 </fieldset>
                 <fieldset  id="menu-list-inspect">
