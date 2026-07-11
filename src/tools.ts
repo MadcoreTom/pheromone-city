@@ -6,7 +6,7 @@ import { HouseZone } from "./zone/house";
 import { ShopZone } from "./zone/shop";
 
 export abstract class Tool {
-    public constructor(public readonly name: string, public readonly w: number = 1, public readonly h: number = 1) {
+    public constructor(public readonly name: string, public readonly cost: number, public readonly w: number = 1, public readonly h: number = 1) {
 
     }
 
@@ -32,7 +32,7 @@ export abstract class Tool {
 
 class RoadTool extends Tool {
     public constructor() {
-        super("Road");
+        super("Road", 1);
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -46,7 +46,7 @@ class RoadTool extends Tool {
 
 class DemolishTool extends Tool {
     public constructor() {
-        super("Demolish");
+        super("Demolish", 0);
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -75,7 +75,7 @@ class DemolishTool extends Tool {
 
 class CarTool extends Tool {
     public constructor() {
-        super("Spawn Car");
+        super("Spawn Car", 1000);
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -93,22 +93,20 @@ class CarTool extends Tool {
     }
 }
 
-class ZoneTool extends Tool {
+class HouseZoneTool extends Tool {
     public constructor() {
-        super("House", 2, 2);
+        super("House", 50, 2, 2);
     }
 
     public onClick(state: State, x: number, y: number) {
-        const z = new HouseZone(x, y, state);
-        // z.cars.push([100, new Car(0, 0, "housing")]);
-        // z.cars.push([200, new Car(0, 0, "housing")]);
+        new HouseZone(x, y, state);
         update3dScene(x, y, this, state);
     }
 }
 
 class FactoryZoneTool extends Tool {
     public constructor() {
-        super("Factory", 3, 3);
+        super("Factory", 100, 3, 3);
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -118,7 +116,7 @@ class FactoryZoneTool extends Tool {
 }
 class ShoppingZoneTool extends Tool {
     public constructor() {
-        super("Shopping", 2, 3);
+        super("Shopping", 75, 2, 3);
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -131,6 +129,6 @@ function update3dScene(x: number, y: number, tool: Tool, state: State) {
     updateSceneRange(state, x, y, tool.w, tool.h);
 }
 
-export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new ZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];
+export const ALL_TOOLS: Tool[] = [new RoadTool(), new DemolishTool(), new CarTool(), new HouseZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];
 
-export const ALL_BUILD_TOOLS: Tool[] = [new RoadTool(), new ZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];
+export const ALL_BUILD_TOOLS: Tool[] = [new RoadTool(), new HouseZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool()];

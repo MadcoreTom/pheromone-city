@@ -14,3 +14,8 @@ export const DISPLAY_HEIGHT = 900;
 export const ASPECT_RATIO = DISPLAY_WIDTH / DISPLAY_HEIGHT;
 
 export const CAR_RETRY_DELAY_MS = 100;
+
+//
+// MONEY
+//
+export const INCOME_TAX = 5; // money earned by the city when someone leaves work

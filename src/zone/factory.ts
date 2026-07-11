@@ -1,5 +1,5 @@
 import { Car } from "../car";
-import { TIMING } from "../constants";
+import { INCOME_TAX, TIMING } from "../constants";
 import { Metric, State } from "../state";
 import { Zone } from "./zone";
 
@@ -18,7 +18,9 @@ export class FactoryZone extends Zone {
         this.emitPolution(state);
 
         this.cars.forEach(c=>c[0] -= delta);
-        this.releaseCars(state);
+        this.releaseCars(state, car=>{
+            state.cash.value += INCOME_TAX;
+        });
     }
 
 

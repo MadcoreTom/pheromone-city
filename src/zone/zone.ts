@@ -52,7 +52,7 @@ export abstract class Zone {
         state.zones = state.zones.filter(z => z !== this);
     }
 
-    protected releaseCars(state: State) {
+    protected releaseCars(state: State, onSuccessfulRelease?:(car:Car)=>unknown) {
         const carsToReturn:ScheduledCar[] = [];
         if (this.cars.length > 0 && this.cars[0][0] <= 0) {
             const [_, car] = this.cars.shift()!;
@@ -83,6 +83,7 @@ export abstract class Zone {
                 car.hidden = false;
                 car.animation = undefined;
                 // state.cars.push(car);
+                onSuccessfulRelease && onSuccessfulRelease(car);
             } else {
                 console.log("A car tried to leave a house but there was no road, try again in "), CAR_RETRY_DELAY_MS;
                 carsToReturn.push([CAR_RETRY_DELAY_MS,car])

@@ -9,7 +9,7 @@ export function initUI(state: State): void {
     const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
     ALL_BUILD_TOOLS.forEach(t => {
         const b = document.createElement("button") as HTMLButtonElement;
-        b.textContent = t.name;
+        b.innerHTML = `${t.name}<br/>$${t.cost}`;
         b.addEventListener("click", () => {
             state.tool = t;
         });
@@ -95,6 +95,11 @@ export function initUI(state: State): void {
             });
         });
     }
+
+    const cashElem = document.getElementById("cash-status") as HTMLElement;
+    state.cash.subscribe(cash=>{
+        cashElem.innerText = "Funds: $" + cash;
+    })
 }
 
 export function updateScore(state: State) {

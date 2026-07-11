@@ -208,10 +208,13 @@ renderer.domElement.addEventListener("mousemove", event=>{
     }
 });
 
-renderer.domElement.addEventListener("click", event=>{
+renderer.domElement.addEventListener("click", event => {
     setMouseFromEventIn3dScene(event, state);
-    if(state.tool && state.tool.onHover(state, state.mouse[0], state.mouse[1])){
-        state.tool.onClick(state, state.mouse[0], state.mouse[1])
+    if (state.tool && state.tool.onHover(state, state.mouse[0], state.mouse[1])) {
+        if (state.cash.value >= state.tool.cost) {
+            state.tool.onClick(state, state.mouse[0], state.mouse[1]);
+            state.cash.value -= state.tool.cost;
+        }
     }
 });
 

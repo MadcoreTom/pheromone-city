@@ -5,6 +5,7 @@ import { Tool } from "./tools";
 import { Zone } from "./zone/zone";
 import { ASPECT_RATIO } from "./constants";
 import { EffectComposer } from "three/examples/jsm/Addons.js";
+import { OnChange } from "./onchange";
 
 export enum TileType {
     ROAD,
@@ -69,7 +70,8 @@ export type State = {
     cameraAngleTarget: number,
     defaultMat: Material,
     colourMats: Material[],
-    composer?: EffectComposer
+    composer?: EffectComposer,
+    cash: OnChange<number>
 };
 
 export interface RenderMode {
@@ -128,7 +130,8 @@ export function initState(): State {
         cameraAngle: -0.1,
         cameraAngleTarget: 0,
         defaultMat: new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1, 1, 0) }),
-        colourMats: createColouredMats()
+        colourMats: createColouredMats(),
+        cash: new OnChange(100)
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
