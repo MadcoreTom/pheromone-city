@@ -43,6 +43,9 @@ class RoadTool extends Tool {
     public onClick(state: State, x: number, y: number) {
         state.map.getIf(Math.floor(x), Math.floor(y), t => {
             t.type = TileType.ROAD;
+            // clear buffers just in case
+            t.buffers[0] = {...BLANK_TILE.buffers[0]};
+            t.buffers[1] = {...BLANK_TILE.buffers[1]};
             update3dScene(x, y, this, state);
         });
     }
