@@ -57,6 +57,18 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
                     }
 
                     
+                    // deco
+                    if(noise(x+77,y-9,3) > 0){
+                        const name = "house_deco" + (noise(x + 1, y + x - 69, 3) + 1);
+                        const m = state.assets[name].clone();
+                        m.rotateY(noise(y,x,40) * Math.PI/20); // 40 angles
+                        m.position.set(x+0.25 + noise(x+7,y+5,100)/200, 0, y -1+ noise(x+7,y+5,100)/200);
+                        g.add(m);
+                        console.log("Deco", name) // Why is this logging more often?
+                    }
+
+
+                    
                     state.scene.add(g);
                 }
             } else {

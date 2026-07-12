@@ -1,8 +1,8 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Scene, WebGLRenderer } from "three";
+import { AmbientLight, DirectionalLight, DoubleSide, HemisphereLight, InstancedMesh, Line3, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, PCFShadowMap, Scene, WebGLRenderer } from "three";
 import { blur } from "./blur";
 import { DISPLAY_HEIGHT, DISPLAY_WIDTH, MAX_CAR_RENDER_COUNT } from "./constants";
 import { initScene } from "./scene/init";
-import { initState, State, TileType } from "./state";
+import { BLANK_TILE, initState, State, TileType } from "./state";
 import { setMouseFromEventIn3dScene, updateCamera } from "./camera";
 import { ALL_TOOLS } from "./tools";
 import { updateSceneRange } from "./scene/util";
@@ -42,10 +42,16 @@ function update(state: State, time: number) {
 
     // move mouse pos indicator
     const hov = state.scene.getObjectByName("mouse_hover")!;
-    if (state.tool) {
+    if (state.tool && state.mouse[0] >=0 && state.mouse[1] >= 0 && state.mouse[0] + state.tool.w <= state.map.width && state.mouse[1] + state.tool.h <= state.map.height) {
         hov.visible = true;
-        hov.position.set(state.mouse[0], 0, state.mouse[1] + state.tool.h - 1);
-        hov.scale.set(state.tool.w, 1, state.tool.h);
+        if(state.tool.name == "Demolish" && state.map.get(state.mouse[0],state.mouse[1], BLANK_TILE).zone != undefined){
+            const z = state.map.get(state.mouse[0],state.mouse[1], BLANK_TILE).zone!;
+            hov.position.set(z.x , 0, z.y+ z.h -1);
+            hov.scale.set(z.w, 1, z.h);
+        } else {
+            hov.position.set(state.mouse[0], 0, state.mouse[1] + state.tool.h - 1);
+            hov.scale.set(state.tool.w, 1, state.tool.h);
+        }
     } else {
         hov.visible = false;
     }
@@ -175,6 +181,10 @@ async function start() {
 
     // hover
     const h = state.assets["select"].clone();
+    h.material = new MeshBasicMaterial({
+        color: 0xffee00,
+        side: DoubleSide
+    })
     h.name ="mouse_hover"
     state.scene.add(h);
 
