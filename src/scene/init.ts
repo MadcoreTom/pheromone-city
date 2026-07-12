@@ -10,8 +10,10 @@ export async function initScene(state: State): Promise<void> {
 		if (ob.type === "Mesh") {
 			console.log("> ", ob.name);
 			state.assets[ob.name] = ob as Mesh;
+			if (ob.name !== "select") {
 				ob.castShadow = true;
-			ob.receiveShadow = true;
+				ob.receiveShadow = true;
+			}
 		}
 	});
 

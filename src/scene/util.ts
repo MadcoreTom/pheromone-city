@@ -3,7 +3,7 @@ import { State, TileType } from "../state";
 import { ShopZone } from "../zone/shop";
 import { FactoryZone } from "../zone/factory";
 import { instance } from "three/tsl";
-import { HouseZone } from "../zone/house";
+import { HouseZone, HouseZone2 } from "../zone/house";
 
 function noise(x: number, y: number, mod: number): number {
     let hash = Math.imul(x, 374761393) + Math.imul(y, 668265263);
@@ -34,6 +34,30 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
                     state.scene.add(m);
                     v.object = m;
 
+                }
+            } else if (v.zone instanceof HouseZone2) {
+                if (x == v.zone.x && y == v.zone.y) {
+                    // root group
+                    const g = new Group();
+                    v.object = g;
+
+                    // base
+                    const m = state.assets["house_base"].clone();
+                    m.position.set(x, 0, y+1);
+                    m.scale.set(1,1,2);
+                    g.add(m);
+
+                    // main
+                    {
+                        const name = "house_main" + (noise(x + 5, y + x - 1, 2) + 1);
+                        const m = state.assets[name].clone();
+                        m.rotateY(noise(y,x,4) * Math.PI/2);
+                        m.position.set(x+0.5, 0, y-0.25 + noise(x+7,y+5,100)/200);
+                        g.add(m);
+                    }
+
+                    
+                    state.scene.add(g);
                 }
             } else {
                 const m = state.assets["house"].clone();

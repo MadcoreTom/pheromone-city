@@ -2,7 +2,7 @@ import { Car } from "./car";
 import { updateSceneRange } from "./scene/util";
 import { BLANK_TILE, State, TileType } from "./state";
 import { FactoryZone } from "./zone/factory";
-import { HouseZone } from "./zone/house";
+import { HouseZone, HouseZone2 } from "./zone/house";
 import { ShopZone } from "./zone/shop";
 
 export abstract class Tool {
@@ -103,11 +103,22 @@ class CarTool extends Tool {
 
 class HouseZoneTool extends Tool {
     public constructor() {
-        super("House", 50, "house-chimney.svg", 2, 2);
+        super("House (old)", 50, "house-chimney.svg", 2, 2);
     }
 
     public onClick(state: State, x: number, y: number) {
         new HouseZone(x, y, state);
+        update3dScene(x, y, this, state);
+    }
+}
+
+class HouseZoneTool2 extends Tool {
+    public constructor() {
+        super("House (new)", 25, "house-chimney.svg", 1, 2);
+    }
+
+    public onClick(state: State, x: number, y: number) {
+        new HouseZone2(x, y, state);
         update3dScene(x, y, this, state);
     }
 }
@@ -137,4 +148,4 @@ function update3dScene(x: number, y: number, tool: Tool, state: State) {
     updateSceneRange(state, x, y, tool.w, tool.h);
 }
 
-export const ALL_TOOLS: Tool[] = [new RoadTool(), /*new CarTool(),*/ new HouseZoneTool(), new FactoryZoneTool(), new ShoppingZoneTool(), new DemolishTool()];
+export const ALL_TOOLS: Tool[] = [new RoadTool(), /*new CarTool(),*/ new HouseZoneTool(), new HouseZoneTool2(), new FactoryZoneTool(), new ShoppingZoneTool(), new DemolishTool()];

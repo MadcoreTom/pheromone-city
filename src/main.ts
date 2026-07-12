@@ -87,9 +87,9 @@ function tick(time: number) {
 async function start() {
     await initScene(state);
     // Hacky way to add things using tools
-    ALL_TOOLS.filter(t => t.name === "House")[0].onClick(state, 3, 2);
-    ALL_TOOLS.filter(t => t.name === "House")[0].onClick(state, 9, 4);
-    ALL_TOOLS.filter(t => t.name === "House")[0].onClick(state, 2, 9);
+    ALL_TOOLS.filter(t => t.name === "House (new)")[0].onClick(state, 3, 2);
+    ALL_TOOLS.filter(t => t.name === "House (new)")[0].onClick(state, 9, 4);
+    ALL_TOOLS.filter(t => t.name === "House (new)")[0].onClick(state, 2, 9);
     ALL_TOOLS.filter(t => t.name === "Factory")[0].onClick(state, 15, 7);
     ALL_TOOLS.filter(t => t.name === "Factory")[0].onClick(state, 12, 14);
     ALL_TOOLS.filter(t => t.name === "Shopping")[0].onClick(state, 3, 14);
