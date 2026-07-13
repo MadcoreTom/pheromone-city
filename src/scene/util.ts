@@ -1,16 +1,10 @@
-import { Group, MeshBasicMaterial, Object3D } from "three";
+import { Group, Object3D } from "three";
 import { State, TileType } from "../state";
 import { ShopZone } from "../zone/shop";
 import { FactoryZone } from "../zone/factory";
-import { instance } from "three/tsl";
 import { HouseZone, HouseZone2 } from "../zone/house";
+import { noiseFixed, noiseFloat } from "../rand";
 
-function noise(x: number, y: number, mod: number): number {
-    let hash = Math.imul(x, 374761393) + Math.imul(y, 668265263);
-    hash = Math.imul(hash ^ (hash >>> 13), 1274126177);
-    hash = hash ^ (hash >>> 16);
-    return (hash >>> 0) % mod;
-}
 
 export function updateSceneRange(state: State, x: number, y: number, w: number = 1, h: number = 1) {
 
@@ -49,20 +43,22 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
 
                     // main
                     {
-                        const name = "house_main" + (noise(x + 5, y + x - 1, 2) + 1);
+                        const name = "house_main" + (noiseFixed(x, y, 123, 2) + 1);
                         const m = state.assets[name].clone();
-                        m.rotateY(noise(y,x,4) * Math.PI/2);
-                        m.position.set(x+0.5, 0, y-0.25 + noise(x+7,y+5,100)/200);
+                        m.rotateY(noiseFixed(y, x, 4, 4) * Math.PI / 2);
+                        m.position.set(x + 0.5, 0, y - 0.25 + noiseFloat(x, y, 0) * 0.5);
                         g.add(m);
                     }
 
-                    
+
                     // deco
-                    if(noise(x+77,y-9,3) > 0){
-                        const name = "house_deco" + (noise(x + 1, y + x - 69, 3) + 1);
+                    if (noiseFixed(x, y, 77, 3) > 0) {
+                        const name = "house_deco" + (noiseFixed(x, y, 354, 3) + 1);
                         const m = state.assets[name].clone();
-                        m.rotateY(noise(y,x,40) * Math.PI/20); // 40 angles
-                        m.position.set(x+0.25 + noise(x+7,y+5,100)/200, 0, y -1+ noise(x+7,y+5,100)/200);
+                        m.rotateY(noiseFixed(y, x, 99, 40) * Math.PI / 20); // 40 angles
+                        // front or back
+                        const yStart = noiseFixed(x,y,147,2)*1.5-1;
+                        m.position.set(x + 0.25 + noiseFloat(x, y, 121) * 0.5, 0, y + yStart + noiseFloat(x, y, 122) * 0.5);
                         g.add(m);
                         console.log("Deco", name) // Why is this logging more often?
                     }
@@ -89,7 +85,7 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
             state.scene.add(m);
             v.object = m;
         } else if (v.type == TileType.GRASS) {
-            const r = noise(x, y, 4);
+            const r = noiseFixed(x, y, 4121, 4);
             if (r < 2) {
                 const m = state.assets["blank"].clone();
                 m.position.set(x, 0, y);
