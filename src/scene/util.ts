@@ -1,5 +1,5 @@
 import { Group, Object3D } from "three";
-import { State, TileType } from "../state";
+import { BLANK_TILE, State, TileType } from "../state";
 import { ShopZone } from "../zone/shop";
 import { FactoryZone } from "../zone/factory";
 import { HouseZone, HouseZone2 } from "../zone/house";
@@ -77,11 +77,45 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
                 //                 m.material= new MeshBasicMaterial({
                 //   color: 0x00ff00
                 // });
-
             }
         } else if (v.type == TileType.ROAD) {
-            const m = state.assets["road"].clone();
-            m.position.set(x, 0, y);
+            const udlr = state.map.getNeighboursUDLR(x, y, BLANK_TILE)
+                .map(t => t.type == TileType.ROAD) // just roads
+                .reduce((acc, current) => (acc << 1) | (current ? 1 : 0), 0); // convert to binary 0x1010
+
+            const ROAD_MAP: Record<number, [string, number]> = {
+                0b0000: ["road-null", 0],
+
+                
+                0b0001: ["road-end", 2],
+                0b0010: ["road-end", 0],
+                0b0100: ["road-end", 1],
+                0b1000: ["road-end", 3],
+
+                0b1100: ["road-straight", 1],
+                0b0011: ["road-straight", 0],
+
+                
+                0b1110: ["road-t", 3],
+                0b1101: ["road-t", 1],
+                0b1011: ["road-t", 2],
+                0b0111: ["road-t", 0],
+
+                
+                0b1010: ["road-corner", 3],
+                0b1001: ["road-corner", 2],
+                0b0110: ["road-corner", 0],
+                0b0101: ["road-corner", 1],
+                
+                0b1111: ["road-x", 0]
+                // TODO more
+            };
+            const name = (ROAD_MAP[udlr] || ROAD_MAP[0])[0];
+            const rotation = (ROAD_MAP[udlr] || ROAD_MAP[0])[1];
+            const offset = [[0,0],[1,0],[1,-1],[0,-1]][rotation];
+            const m = state.assets[name].clone();
+            m.position.set(x + offset[0], 0, y + offset[1]);
+            m.rotateY(rotation * Math.PI/2)
             state.scene.add(m);
             v.object = m;
         } else if (v.type == TileType.GRASS) {

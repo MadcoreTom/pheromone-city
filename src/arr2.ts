@@ -98,4 +98,20 @@ export class Arr2<T> {
             }
         }
     }
+
+    public getNeighboursUDLR(
+        x: number,
+        y: number,
+        defaultVal: T,
+    ): [T, T, T, T] {
+        let left: T;
+        let up: T;
+        let right: T;
+        let down: T;
+        left = x <= 0 ? defaultVal : this.data[x - 1][y];
+        up = y <= 0 ? defaultVal : this.data[x][y - 1];
+        right = x >= this.width - 1 ? defaultVal : this.data[x + 1][y];
+        down = y >= this.height - 1 ? defaultVal : this.data[x][y + 1];
+        return [up, down, left, right];
+    }
 }

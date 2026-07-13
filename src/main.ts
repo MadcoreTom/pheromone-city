@@ -34,7 +34,7 @@ function update(state: State, time: number) {
     ci.count = visibleCars.length;
     visibleCars.forEach((c, i) => {
         const mat =  new Matrix4();
-        mat.makeTranslation(c.x, 0, c.y -1);
+        mat.makeTranslation(c.x, -0.05, c.y -1);
         mat.multiply(new Matrix4().makeRotationY(c.yaw))
         ci.setMatrixAt(i,mat);
     })
