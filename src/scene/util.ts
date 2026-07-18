@@ -15,8 +15,13 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
         if (v.zone) {
             if (v.zone instanceof FactoryZone) {
                 if (x == v.zone.x && y == v.zone.y) {
-                    const m = state.assets["factory"].clone();
-                    m.position.set(x, 0, y);
+                    const name = ["factory","Kitch_factory"][noiseFixed(x,y,139,2)];
+                    const m = state.assets[name].clone();
+                    const angle = noiseFixed(x,y,919,4);
+                    m.rotateY(angle*Math.PI/2);
+                    const offset = [[0,0],[1,2],[3,1],[2,-1]][angle]
+                    m.position.set(x + offset[0], 0, y + offset[1]);
+                    
                     state.scene.add(m);
                     v.object = m;
 
