@@ -4,6 +4,7 @@ import { RENDER_MODES } from "./render-mode";
 import { State } from "./state";
 import { Zone } from "./zone/zone";
 import { Car } from "./car";
+import { showPopup } from "./ui/popups";
 
 export function initUI(state: State): void {
     const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
@@ -87,6 +88,9 @@ export function initUI(state: State): void {
                     break;
                 case "rotCCW":
                     state.cameraAngleTarget--;
+                    break;
+                case "pause":
+                    showPopup(state, "pause");
                     break;
             }
         }

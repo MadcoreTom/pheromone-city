@@ -11,6 +11,7 @@ import { EffectComposer, ShaderPass } from "three/examples/jsm/Addons.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import { N8AOPass } from "n8ao";
 import { initUI, updateScore } from "./ui";
+import { showPopup } from "./ui/popups";
 
 const state: State = initState();
 
@@ -84,7 +85,9 @@ function update(state: State, time: number) {
 }
 
 function tick(time: number) {
-    update(state, time);
+    if (!state.paused) {
+        update(state, time);
+    }
     state.composer?.render(time);//state.scene, state.camera)
     diagnosticsUpdate();
     window.requestAnimationFrame(tick);
@@ -190,6 +193,7 @@ async function start() {
 
     console.log("Start")
     window.requestAnimationFrame(tick);
+    showPopup(state, "intro");
 }
 
 // init three.js canvas
@@ -218,6 +222,9 @@ renderer.domElement.addEventListener("mousemove", event=>{
 });
 
 renderer.domElement.addEventListener("click", event => {
+    if(state.paused){
+        return;
+    }
     setMouseFromEventIn3dScene(event, state);
     if (state.tool && state.tool.onHover(state, state.mouse[0], state.mouse[1])) {
         if (state.cash.value >= state.tool.cost) {

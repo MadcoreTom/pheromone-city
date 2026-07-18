@@ -52,6 +52,7 @@ export const BLANK_TILE: Tile = {
 };
 
 export type State = {
+    paused: boolean,
     map: Arr2<Tile>;
     writeBuffer: 0 | 1,
     readBuffer: 0 | 1
@@ -93,6 +94,7 @@ function createColouredMats(): Material[] {
 
 export function initState(): State {
     const state: State = {
+        paused: false,
         mouse: [0, 0],
         focusedTile: [0, 0],
         writeBuffer: 0,

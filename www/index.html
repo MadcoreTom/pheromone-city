@@ -75,8 +75,12 @@
                     <div id="menu-list-build">
                     </div>
                 </fieldset>
-                <fieldset  id="menu-list-inspect">
+                <fieldset id="menu-list-inspect">
                     <legend>Inspection View</legend>
+                </fieldset>
+                <fieldset id="menu-list-inspect">
+                    <legend>Other Controls</legend>
+                    <button data-action="pause">Pause</button>
                 </fieldset>
             </div>
         </div>
@@ -84,6 +88,21 @@
             <p class="status-bar-field" id="cash-status">$ -</p>
             <p class="status-bar-field">Citizens say "Build more houses"</p>
             <p class="status-bar-field" id="population-status">Population: ?</p>
+        </div>
+    </div>
+    <div class="window" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1000; display: none" id="popup">
+        <div class="title-bar">
+            <div class="title-bar-text">Welcome</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <div id="popup-content"></div>
+           
+            <div style="text-align:right; margin-top: 1em;" id="popup-buttons">
+                <button>OK</button>
+            </div>
         </div>
     </div>
     <script src="./js/main.js"></script>
