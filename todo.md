@@ -13,3 +13,38 @@
     * a tile points to the building (which might be shared with others)
 * cars drive on the left
 * roads count traffic, and the speed limit slows it its too hhigh (should it have 2 buffers, cycle them every 100-sh frames, and take the metric from the average of both?)
+
+
+# Game Milestones
+
+## One star
+
+### Unlocked
+
+* road
+* destroy
+* factory
+* small home
+
+### Mechanics
+
+* cars to to work, then home
+* houses near polution have no capacity
+
+### Target
+
+* population of 5
+
+## Two stars
+
+### Unlocked
+
+* shops
+
+### Mechanics
+
+* cars can work at shops
+* shops can sell goods when it has at least 1 employee
+* 30% chance a car goes home->shop->home
+* need an empty shop, home and job, and < 50% traffic
+    * > Alternatively there must be a home for all cars + 1, and a job for all cars + 1, and a shop with one current worker and no customers

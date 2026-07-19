@@ -1,6 +1,6 @@
 import { State } from "../state"
 
-type PopupDetail = {
+export type PopupDetail = {
     name: string,
     content: string,
     buttonText: string
@@ -27,18 +27,23 @@ const POPUP_CONTENTS = {
             However, cars will not spawn if more than 50% of cars are caught in traffic</p>
             <p>Build your city, and have fun!</p>`,
         buttonText: "Start"
-    }
+    },
+    levelUp: {
+        name: "Achievement",
+        content: "<p>New star level reached!</p>",
+        buttonText: "Continue"
+    },
 } as const;
 
 const popupElem = document.getElementById("popup") as HTMLElement;
 const popupButtonsElem = document.getElementById("popup-buttons") as HTMLElement;
 const popupContentElem = document.getElementById("popup-content") as HTMLElement;
 
-export function showPopup(state: State, popupName: keyof typeof POPUP_CONTENTS) {
+export function showPopup(state: State, popup: (keyof typeof POPUP_CONTENTS) | PopupDetail) {
     state.paused = true;
     popupElem.style.display = "block";
 
-    const cur = POPUP_CONTENTS[popupName];
+    const cur = typeof popup === "string" ? POPUP_CONTENTS[popup] : popup;
 
     (popupElem.querySelector(".title-bar-text") as HTMLElement).textContent = cur.name;
 

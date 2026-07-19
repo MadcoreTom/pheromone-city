@@ -79,8 +79,14 @@ function update(state: State, time: number) {
         })
     }
 
-    if(Math.random() < 0.01){
+    if (Math.random() < 0.01) {
         updateScore(state);
+        const oldStar = state.starLevel;
+        state.starLevel = state.starLevel.evaluateNextStar(state);
+        state.starCount.value = state.starLevel.stars;
+        if (oldStar !== state.starLevel) {
+            showPopup(state, state.starLevel.popup);
+        }
     }
 }
 

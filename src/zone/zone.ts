@@ -56,7 +56,8 @@ export abstract class Zone {
         const carsToReturn:ScheduledCar[] = [];
         if (this.cars.length > 0 && this.cars[0][0] <= 0) {
             const [_, car] = this.cars.shift()!;
-            car.chooseNextTarget();
+            // car.chooseNextTarget();
+            state.starLevel.chooseNextCarTarget(state, car);
             // place back on a good tile
             const options: { x: number, y: number, value: number, road: boolean , dir:[number,number]}[] = [];
             // above and below

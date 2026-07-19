@@ -6,6 +6,7 @@ import { Zone } from "./zone/zone";
 import { ASPECT_RATIO } from "./constants";
 import { EffectComposer } from "three/examples/jsm/Addons.js";
 import { OnChange } from "./onchange";
+import { OneStar, Star } from "./stars";
 
 export enum TileType {
     ROAD,
@@ -53,6 +54,7 @@ export const BLANK_TILE: Tile = {
 
 export type State = {
     paused: boolean,
+    starLevel: Star,
     map: Arr2<Tile>;
     writeBuffer: 0 | 1,
     readBuffer: 0 | 1
@@ -72,7 +74,8 @@ export type State = {
     defaultMat: Material,
     colourMats: Material[],
     composer?: EffectComposer,
-    cash: OnChange<number>
+    cash: OnChange<number>,
+    starCount: OnChange<number>
 };
 
 export interface RenderMode {
@@ -95,6 +98,7 @@ function createColouredMats(): Material[] {
 export function initState(): State {
     const state: State = {
         paused: false,
+        starLevel: new OneStar(),
         mouse: [0, 0],
         focusedTile: [0, 0],
         writeBuffer: 0,
@@ -133,7 +137,8 @@ export function initState(): State {
         cameraAngleTarget: 0,
         defaultMat: new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1, 1, 0) }),
         colourMats: createColouredMats(),
-        cash: new OnChange(100)
+        cash: new OnChange(100),
+        starCount: new OnChange(1)
     }
 
     state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));

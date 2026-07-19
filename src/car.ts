@@ -25,16 +25,17 @@ export class Car {
     this.ty = Math.floor(y);
   }
 
-  public chooseNextTarget() {
-    switch (this.target) {
-      case "shopping":
-      case "housing":
-        this.target = "unemployment";
-        break;
-      case "unemployment":
-        this.target = Math.random() < 0.3 ? "shopping" : "housing";
-    }
-  }
+  // public chooseNextTarget() {
+  //   // TODO replace with usage of the star system
+  //   switch (this.target) {
+  //     case "shopping":
+  //     case "housing":
+  //       this.target = "unemployment";
+  //       break;
+  //     case "unemployment":
+  //       this.target = Math.random() < 0.3 ? "shopping" : "housing";
+  //   }
+  // }
 
   public update(state: State, delta: number) {
     // TODO change to a while

@@ -5,6 +5,7 @@ import { State } from "./state";
 import { Zone } from "./zone/zone";
 import { Car } from "./car";
 import { showPopup } from "./ui/popups";
+import { ALL_STAR_LEVELS } from "./stars";
 
 export function initUI(state: State): void {
     const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
@@ -112,44 +113,40 @@ export function initUI(state: State): void {
     const cashElem = document.getElementById("cash-status") as HTMLElement;
     state.cash.subscribe(cash=>{
         cashElem.innerText = "Funds: $" + cash;
-    })
+    });
+
+    const starsElem = document.getElementById("star-indicator") as HTMLElement;
+    state.starCount.subscribe(count => {
+        starsElem.innerHTML = "";
+        for (let i = 0; i < 5; i++) {
+            const img = document.createElement("img");
+            img.width = 20;
+            img.alt = "Star";
+            if (i < count) {
+                img.src = `icons/star-filled.svg`;
+            } else {
+                img.src = `icons/star-empty.svg`;
+            }
+            img.addEventListener("click",()=>{
+                const s= ALL_STAR_LEVELS[i];
+                if(s){
+                    showPopup(state, s.popup);
+                }
+            })
+            starsElem.appendChild(img)
+        }
+    });
 }
 
 export function updateScore(state: State) {
-    let emptyHouses = 0;
-    let emptyJobs = 0;
-    let emptyShops = 0;
-    let houses: Zone[] = [];
-    state.zones.forEach(z => {
-        if (z.cars.length === 0) {
-            if (z.providesNeed("housing")) {
-                emptyHouses++;
-                houses.push(z);
-            }
-            if (z.providesNeed("unemployment")) {
-                emptyJobs++;
-            }
-            if (z.providesNeed("shopping")) {
-                emptyShops++;
-            }
-        }
-    });
-    if (emptyHouses > 0 && emptyJobs > 0 && emptyShops > 0) {
-        console.log("🔼 Looks good");
-        const carCount = state.cars.length;
-        const carsOut = state.cars.filter(c => !c.hidden).length;
-        console.log("Look cars", carCount, carsOut)
-        if (carsOut < carCount * 0.5) {
-            const z = houses[Math.floor(Math.random() * houses.length)];
-            const car = new Car(z.x, z.y, "housing");
+    const zoneToSpawnInto = state.starLevel.evaluateSpawn(state);
+    if(zoneToSpawnInto){
+            const car = new Car(zoneToSpawnInto.x, zoneToSpawnInto.y, "housing");
             car.tx = car.x;
             car.ty = car.y;
             car.hidden = true;
             state.cars.push(car);
-            z.enter(car);
+            zoneToSpawnInto.enter(car);
             document.getElementById("population-status")!.textContent = `Population: ${state.cars.length}`
-        }
-    } else {
-        console.log("🔽 Looks bad")
     }
 }
