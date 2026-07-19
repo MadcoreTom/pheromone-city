@@ -63,6 +63,7 @@ class DemolishTool extends Tool {
 
     public onClick(state: State, x: number, y: number) {
         state.map.getIf(Math.floor(x), Math.floor(y), t => {
+            const wasRoad = t.type == TileType.ROAD;
             t.type = TileType.GRASS;
             Object.keys(t.buffers[0]).forEach(k => (t.buffers[0] as any)[k] = -999);
             Object.keys(t.buffers[1]).forEach(k => (t.buffers[1] as any)[k] = -999);
@@ -77,6 +78,12 @@ class DemolishTool extends Tool {
                 t.zone = undefined;
             }
             updateSceneRange(state, x, y, w, h);
+            if (wasRoad) {
+                update3dScene(x - 1, y, this, state);
+                update3dScene(x + 1, y, this, state);
+                update3dScene(x, y - 1, this, state);
+                update3dScene(x, y + 1, this, state);
+            }
         });
     }
 
