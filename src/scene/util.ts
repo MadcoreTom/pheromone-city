@@ -46,28 +46,34 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
                     m.scale.set(1,1,2);
                     g.add(m);
 
-                    // main
-                    {
-                        const name = "house_main" + (noiseFixed(x, y, 123, 2) + 1);
-                        const m = state.assets[name].clone();
-                        m.rotateY(noiseFixed(y, x, 4, 4) * Math.PI / 2);
-                        m.position.set(x + 0.5, 0, y - 0.25 + noiseFloat(x, y, 0) * 0.5);
+                    if (v.zone.capacity === 0) {
+                        const m = state.assets["house_abandoned"].clone();
+                        m.position.set(x + 0.5, 0, y);
                         g.add(m);
+                    } else {
+
+                        // main
+                        {
+                            const name = "house_main" + (noiseFixed(x, y, 123, 2) + 1);
+                            const m = state.assets[name].clone();
+                            m.rotateY(noiseFixed(y, x, 4, 4) * Math.PI / 2);
+                            m.position.set(x + 0.5, 0, y - 0.25 + noiseFloat(x, y, 0) * 0.5);
+                            g.add(m);
+                        }
+
+
+                        // deco
+                        if (noiseFixed(x, y, 77, 3) > 0) {
+                            const name = "house_deco" + (noiseFixed(x, y, 354, 3) + 1);
+                            const m = state.assets[name].clone();
+                            m.rotateY(noiseFixed(y, x, 99, 40) * Math.PI / 20); // 40 angles
+                            // front or back
+                            const yStart = noiseFixed(x, y, 147, 2) * 1.5 - 1;
+                            m.position.set(x + 0.25 + noiseFloat(x, y, 121) * 0.5, 0, y + yStart + noiseFloat(x, y, 122) * 0.5);
+                            g.add(m);
+                            console.log("Deco", name) // Why is this logging more often?
+                        }
                     }
-
-
-                    // deco
-                    if (noiseFixed(x, y, 77, 3) > 0) {
-                        const name = "house_deco" + (noiseFixed(x, y, 354, 3) + 1);
-                        const m = state.assets[name].clone();
-                        m.rotateY(noiseFixed(y, x, 99, 40) * Math.PI / 20); // 40 angles
-                        // front or back
-                        const yStart = noiseFixed(x,y,147,2)*1.5-1;
-                        m.position.set(x + 0.25 + noiseFloat(x, y, 121) * 0.5, 0, y + yStart + noiseFloat(x, y, 122) * 0.5);
-                        g.add(m);
-                        console.log("Deco", name) // Why is this logging more often?
-                    }
-
 
                     
                     state.scene.add(g);
@@ -125,7 +131,7 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
             v.object = m;
         } else if (v.type == TileType.GRASS) {
             const r = noiseFixed(x, y, 4121, 4);
-            if (r < 2) {
+            if (r < 2 || v.buffers[state.readBuffer].pollution > -3) { // tODO -3 as a constant
                 const m = state.assets["blank"].clone();
                 m.position.set(x, 0, y);
                 state.scene.add(m);

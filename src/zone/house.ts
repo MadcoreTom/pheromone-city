@@ -1,7 +1,7 @@
 import { Car } from "../car";
 import { TIMING } from "../constants";
 import { updateSceneRange } from "../scene/util";
-import { Metric, State } from "../state";
+import { BLANK_TILE, Metric, State } from "../state";
 import { Zone } from "./zone";
 
 export class HouseZone extends Zone {
@@ -43,7 +43,7 @@ export class HouseZone extends Zone {
 }
 
 export class HouseZone2 extends Zone {
-    private readonly capacity = 1;
+    public capacity = 1;
     public height:number = 0;
     public constructor(x: number, y: number, state: State) {
         super(x, y, 1, 2, state);
@@ -62,6 +62,16 @@ export class HouseZone2 extends Zone {
         if (this.cars.length != this.height){
             this.height = this.cars.length;
             
+            updateSceneRange(state, this.x, this.y, this.w, this.h);
+        }
+
+        const isPolluted = state.map.get(this.x, this.y, BLANK_TILE).buffers[state.readBuffer].pollution > -3;
+        if (isPolluted != (this.capacity == 0)) {
+            if (isPolluted) {
+                this.capacity = 0;
+            } else {
+                this.capacity = 1;
+            }
             updateSceneRange(state, this.x, this.y, this.w, this.h);
         }
 

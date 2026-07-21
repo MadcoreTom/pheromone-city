@@ -59,6 +59,11 @@ function update(state: State, time: number) {
 
     updateCamera(state);
 
+    // randomly visit grass an update based on polliution
+    const x = Math.floor(Math.random() * state.map.width);
+    const y = Math.floor(Math.random() * state.map.height);
+    updateSceneRange(state, x, y);
+
     // 3d render modes
     if(state.renderMode){
         state.map.forEach((x,y,t)=>{
@@ -135,6 +140,7 @@ async function start() {
     const cars = new InstancedMesh(state.assets["car"].geometry, state.assets["car"].material, MAX_CAR_RENDER_COUNT);
     cars.name = "instanced_cars";
     cars.castShadow = true;
+    cars.frustumCulled = false; // fixing some bugs where they randomly disappear
     state.scene.add(cars);
 
 

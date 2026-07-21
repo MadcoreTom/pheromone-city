@@ -25,34 +25,19 @@ export class Car {
     this.ty = Math.floor(y);
   }
 
-  // public chooseNextTarget() {
-  //   // TODO replace with usage of the star system
-  //   switch (this.target) {
-  //     case "shopping":
-  //     case "housing":
-  //       this.target = "unemployment";
-  //       break;
-  //     case "unemployment":
-  //       this.target = Math.random() < 0.3 ? "shopping" : "housing";
-  //   }
-  // }
-
   public update(state: State, delta: number) {
     // TODO change to a while
     if (!this.hidden && !this.animation) {
       const d = this.findNextDirection(state);
-      // console.log("FIND result", Direction[d]);
       const { dx, dy } = this;
       switch (d) {
         case Direction.FWD:
           this.animation = straight(this, dx, dy, state);
           break;
         case Direction.LEFT:
-          // this.animation = straight(this, dy, -dx);
           this.animation = left(this);
           break;
         case Direction.RIGHT:
-          // this.animation = straight(this, -dy, dx);
           this.animation = right(this);
           break;
         case Direction.BKWD:
@@ -89,11 +74,6 @@ export class Car {
         return -9999;
       }
     }
-
-    // const fwd = map.get(tx + this.dx, ty + this.dy, BLANK_TILE).buffers[buffer][this.target] - c;
-    // const bkwd = map.get(tx - this.dx, ty - this.dy, BLANK_TILE).buffers[buffer][this.target] - c;
-    // const left = map.get(tx + this.dy, ty - this.dx, BLANK_TILE).buffers[buffer][this.target] - c;
-    // const right = map.get(tx - this.dy, ty + this.dx, BLANK_TILE).buffers[buffer][this.target] - c;
 
     const fwd = getRoadMetricAtOffset(this.dx, this.dy);
     const bkwd = getRoadMetricAtOffset(- this.dx, - this.dy);
