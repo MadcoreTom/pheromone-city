@@ -68,7 +68,7 @@ export class OneStar implements Star {
         if (emptyHouses > 0 && emptyJobs > 0 /*&& emptyShops > 0*/) {
             const carCount = state.cars.length;
             const carsOut = state.cars.filter(c => !c.hidden).length;
-            if (carsOut < carCount * 0.5) {
+            if (carsOut <= carCount * 0.5) {
                 return houses[Math.floor(Math.random() * houses.length)];
             }
         }

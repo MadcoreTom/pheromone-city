@@ -25,6 +25,7 @@ const POPUP_CONTENTS = {
             You can see this by using the inspection view. This means that nobody has assigned houses or jobs</p>
             <p>Cars will spawn in a house if you have 1 empty house, one completely empty job, and an empty shop.<br/>
             However, cars will not spawn if more than 50% of cars are caught in traffic</p>
+            <p>Start by adding one factory, some houses, and connect them by road</p>
             <p>Build your city, and have fun!</p>`,
         buttonText: "Start"
     },

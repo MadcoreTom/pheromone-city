@@ -124,9 +124,7 @@ export function initState(): State {
                 ]
             };
         }),
-        cars: [
-            new Car(8.5, 9.5, "unemployment"),
-        ],
+        cars: [],
         zones: [],
         assets: {},
         scene: new Scene(),
@@ -137,16 +135,16 @@ export function initState(): State {
         cameraAngleTarget: 0,
         defaultMat: new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1, 1, 0) }),
         colourMats: createColouredMats(),
-        cash: new OnChange(100),
+        cash: new OnChange(200),
         starCount: new OnChange(1)
     }
 
-    state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
-    state.map.forEachRange(2, 8, 9, 9, (x, y, v) => (v.type = TileType.ROAD));
-    state.map.forEachRange(2, 6, 13, 7, (x, y, v) => (v.type = TileType.ROAD));
-    state.map.forEachRange(4, 10, 19, 11, (x, y, v) => (v.type = TileType.ROAD));
-    state.map.forEachRange(8, 4, 9, 19, (x, y, v) => (v.type = TileType.ROAD));
-    state.map.forEachRange(5, 15, 12, 16, (x, y, v) => (v.type = TileType.ROAD));
+    // state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));
+    // state.map.forEachRange(2, 8, 9, 9, (x, y, v) => (v.type = TileType.ROAD));
+    // state.map.forEachRange(2, 6, 13, 7, (x, y, v) => (v.type = TileType.ROAD));
+    // state.map.forEachRange(4, 10, 19, 11, (x, y, v) => (v.type = TileType.ROAD));
+    // state.map.forEachRange(8, 4, 9, 19, (x, y, v) => (v.type = TileType.ROAD));
+    // state.map.forEachRange(5, 15, 12, 16, (x, y, v) => (v.type = TileType.ROAD));
 
     // state.zones.push(new Zone(1, 9, 3, 3, state));
 
