@@ -1,5 +1,5 @@
 import { Mesh } from "three";
-import {  ALL_TOOLS } from "./tools";
+import {  ALL_TOOLS, Tool } from "./tools";
 import { RENDER_MODES } from "./render-mode";
 import { State } from "./state";
 import { Car } from "./car";
@@ -8,7 +8,7 @@ import { ALL_STAR_LEVELS } from "./stars";
 
 export function initUI(state: State): void {
     const buildListParent = document.getElementById("menu-list-build") as HTMLElement;
-    const allToolButtons: HTMLButtonElement[] = [];
+    const allToolButtons: [HTMLButtonElement, Tool][] = [];
     ALL_TOOLS.forEach(t => {
         const b = document.createElement("button") as HTMLButtonElement;
         t.enabled.subscribe(v=>b.disabled = !v)
@@ -20,11 +20,11 @@ export function initUI(state: State): void {
         b.innerHTML = html;
         b.addEventListener("click", () => {
             state.tool = t;
-            allToolButtons.forEach(bb=>bb.disabled = false);
+            allToolButtons.forEach(bb=>bb[0].disabled = !bb[1].enabled.value);
             b.disabled = true;
         });
         buildListParent.appendChild(b);
-        allToolButtons.push(b);
+        allToolButtons.push([b,t]);
     });
 
     const inspectListParent = document.getElementById("menu-list-inspect") as HTMLElement;

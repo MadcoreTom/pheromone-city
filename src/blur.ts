@@ -23,6 +23,8 @@ export function blur(state: State, delta: number) {
                 Math.max(cur.housing, lv.housing, uv.housing, rv.housing, dv.housing) - trafficEffect;
             v.buffers[writeBuffer].shopping =
                 Math.max(cur.shopping, lv.shopping, uv.shopping, rv.shopping, dv.shopping) - trafficEffect;
+            v.buffers[writeBuffer].entertainment =
+                Math.max(cur.entertainment, lv.entertainment, uv.entertainment, rv.entertainment, dv.entertainment) - trafficEffect;
 
             // traffic blurs differently
             // tODO not framerate independent

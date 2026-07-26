@@ -4,6 +4,7 @@ import { ShopZone } from "../zone/shop";
 import { FactoryZone } from "../zone/factory";
 import { HouseZone, HouseZone2 } from "../zone/house";
 import { noiseFixed, noiseFloat } from "../rand";
+import { ParkZone } from "../zone/park";
 
 
 export function updateSceneRange(state: State, x: number, y: number, w: number = 1, h: number = 1) {
@@ -30,6 +31,14 @@ export function updateSceneRange(state: State, x: number, y: number, w: number =
                 if (x == v.zone.x && y == v.zone.y) {
                     const m = state.assets["shop"].clone();
                     m.position.set(x, 0, y);
+                    state.scene.add(m);
+                    v.object = m;
+
+                }
+            }else if (v.zone instanceof ParkZone) {
+                if (x == v.zone.x && y == v.zone.y) {
+                    const m = state.assets["park1"].clone();
+                    m.position.set(x+1, 0, y);
                     state.scene.add(m);
                     v.object = m;
 

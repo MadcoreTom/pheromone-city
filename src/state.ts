@@ -19,6 +19,7 @@ export type TileBuffer = {
     shopping: number;
     traffic: number;
     pollution: number;
+    entertainment: number;
 };
 
 export type Metric = keyof TileBuffer;
@@ -40,14 +41,16 @@ export const BLANK_TILE: Tile = {
             housing: -999,
             shopping: -999,
             traffic: 0,
-            pollution: -999
+            pollution: -999,
+            entertainment: -999
         },
         {
             unemployment: -999,
             housing: -999,
             shopping: -999,
             traffic: 0,
-            pollution: -999
+            pollution: -999,
+            entertainment: -999
         }
     ]
 };
@@ -112,14 +115,16 @@ export function initState(): State {
                         housing: -999,
                         shopping: -999.,
                         traffic: 0,
-                        pollution: -999
+                        pollution: -999,
+                        entertainment: -999
                     },
                     {
                         unemployment: -999,
                         housing: -999,
                         shopping: -999,
                         traffic: 0,
-                        pollution: -999
+                        pollution: -999,
+                        entertainment: -999
                     }
                 ]
             };

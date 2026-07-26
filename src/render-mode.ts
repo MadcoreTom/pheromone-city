@@ -48,6 +48,7 @@ export const RENDER_MODES:RenderMode[] = [
     new RenderModeMetric("unemployment", "Jobs"),
     new RenderModeMetric("housing", "Housing"),
     new RenderModeMetric("shopping", "Goods"),
+    new RenderModeMetric("entertainment", "Entertainment"),
     new RenderModePollution(),
     new RenderModeTraffic()
 ]

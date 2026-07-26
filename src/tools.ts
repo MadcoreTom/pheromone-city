@@ -4,6 +4,7 @@ import { updateSceneRange } from "./scene/util";
 import { BLANK_TILE, State, TileType } from "./state";
 import { FactoryZone } from "./zone/factory";
 import { HouseZone, HouseZone2 } from "./zone/house";
+import { ParkZone } from "./zone/park";
 import { ShopZone } from "./zone/shop";
 
 export abstract class Tool {
@@ -138,6 +139,21 @@ class HouseZoneTool2 extends Tool {
     }
 }
 
+
+
+class ParkZoneTool extends Tool {
+    public constructor() {
+        super("Park", 25, "house-chimney.svg", 2,1);
+        // temp
+        this.enabled.value = true;
+    }
+
+    public onClick(state: State, x: number, y: number) {
+        new ParkZone(x, y, state);
+        update3dScene(x, y, this, state);
+    }
+}
+
 class FactoryZoneTool extends Tool {
     public constructor() {
         super("Factory", 100, "industry.svg", 3, 3);
@@ -170,6 +186,7 @@ export const ALL_TOOLS_MAP = {
     house2: new HouseZoneTool2(),
     factory: new FactoryZoneTool(),
     shop: new ShoppingZoneTool(),
+    park: new ParkZoneTool(),
     demolish: new DemolishTool()
 } as const;
 
