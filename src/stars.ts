@@ -1,5 +1,6 @@
 import { Car } from "./car";
 import { State } from "./state";
+import { ALL_TOOLS_MAP } from "./tools";
 import { PopupDetail } from "./ui/popups";
 import { Zone } from "./zone/zone";
 
@@ -25,7 +26,7 @@ export interface Star {
 }
 
 export class OneStar implements Star {
-    public readonly stars:number = 1;
+    public readonly stars: number = 1;
     public readonly popup: PopupDetail = {
         name: "One Star",
         content: `<p><strong>One Star</strong><br>
@@ -42,6 +43,10 @@ export class OneStar implements Star {
         }
     }
     evaluateSpawn(state: State): null | Zone {
+        // tODO do this elsewhere
+        ALL_TOOLS_MAP.house2.enabled.value = true;
+        ALL_TOOLS_MAP.factory.enabled.value = true;
+
         let emptyHouses = 0;
         let emptyJobs = 0;
         // let emptyShops = 0;
@@ -89,6 +94,8 @@ export class TwoStar extends OneStar {
         buttonText: "Continue"
     };
     evaluateSpawn(state: State): null | Zone {
+        // tODO do this elsewhere
+        ALL_TOOLS_MAP.shop.enabled.value = true;
         // an empty house, an empty job, and an empty shop, with <50% cars as traffic
         let emptyHouses = 0;
         let emptyJobs = 0;
@@ -124,7 +131,7 @@ export class TwoStar extends OneStar {
     chooseNextCarTarget(state: State, car: Car): void {
         // Simply go from work to home (or 20% chance to go to shops)
         if (car.target == "housing") {
-            if(Math.random() < 0.2){
+            if (Math.random() < 0.2) {
                 car.target = "shopping";
             } else {
                 car.target = "unemployment";
@@ -135,4 +142,4 @@ export class TwoStar extends OneStar {
     }
 }
 
-export const ALL_STAR_LEVELS : Star[] = [new OneStar(), new TwoStar()];
+export const ALL_STAR_LEVELS: Star[] = [new OneStar(), new TwoStar()];

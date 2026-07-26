@@ -2,7 +2,6 @@ import { Mesh } from "three";
 import {  ALL_TOOLS } from "./tools";
 import { RENDER_MODES } from "./render-mode";
 import { State } from "./state";
-import { Zone } from "./zone/zone";
 import { Car } from "./car";
 import { showPopup } from "./ui/popups";
 import { ALL_STAR_LEVELS } from "./stars";
@@ -12,6 +11,7 @@ export function initUI(state: State): void {
     const allToolButtons: HTMLButtonElement[] = [];
     ALL_TOOLS.forEach(t => {
         const b = document.createElement("button") as HTMLButtonElement;
+        t.enabled.subscribe(v=>b.disabled = !v)
         let html = `<img src="icons/${t.icon}" width="20" alt="${t.name}"/><br/>`;
         if (t.cost != 0) {
             html += `$${t.cost}<br/>`;

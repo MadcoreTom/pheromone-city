@@ -1,4 +1,5 @@
 import { Car } from "./car";
+import { OnChange } from "./onchange";
 import { updateSceneRange } from "./scene/util";
 import { BLANK_TILE, State, TileType } from "./state";
 import { FactoryZone } from "./zone/factory";
@@ -6,6 +7,7 @@ import { HouseZone, HouseZone2 } from "./zone/house";
 import { ShopZone } from "./zone/shop";
 
 export abstract class Tool {
+    public readonly enabled: OnChange<boolean> = new OnChange(false);
     public constructor(
         public readonly name: string, 
         public readonly cost: number, 
@@ -38,6 +40,7 @@ export abstract class Tool {
 class RoadTool extends Tool {
     public constructor() {
         super("Road", 1, "road.svg");
+        this.enabled.value = true;
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -59,6 +62,7 @@ class RoadTool extends Tool {
 class DemolishTool extends Tool {
     public constructor() {
         super("Demolish", 0, "explosion.svg");
+        this.enabled.value = true;
     }
 
     public onClick(state: State, x: number, y: number) {
@@ -159,4 +163,14 @@ function update3dScene(x: number, y: number, tool: Tool, state: State) {
     updateSceneRange(state, x, y, tool.w, tool.h);
 }
 
-export const ALL_TOOLS: Tool[] = [new RoadTool(), /*new CarTool(),*/ new HouseZoneTool(), new HouseZoneTool2(), new FactoryZoneTool(), new ShoppingZoneTool(), new DemolishTool()];
+
+export const ALL_TOOLS_MAP = {
+    road: new RoadTool(),
+    house: new HouseZoneTool(),
+    house2: new HouseZoneTool2(),
+    factory: new FactoryZoneTool(),
+    shop: new ShoppingZoneTool(),
+    demolish: new DemolishTool()
+} as const;
+
+export const ALL_TOOLS: Tool[] = [...Object.values(ALL_TOOLS_MAP)];
