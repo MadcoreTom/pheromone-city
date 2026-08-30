@@ -23,6 +23,7 @@ export class ShopZone extends Zone {
 
     public enter(car:Car){
         this.cars.push([TIMING.SHOP_SHOPPING_MS,car]);
+        car.happiness = (car.happiness + 2)/3;
     }
 
 

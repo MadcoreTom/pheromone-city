@@ -242,6 +242,7 @@ renderer.domElement.addEventListener("click", event => {
 renderer.domElement.addEventListener("contextmenu", event => {
     event.preventDefault();
     state.focusedTile = [state.mouse[0], state.mouse[1]];
+    console.log("Clicked", state.map.get(state.mouse[0], state.mouse[1], BLANK_TILE))
 });
 
 renderer.domElement.addEventListener("wheel", event => {

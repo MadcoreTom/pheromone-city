@@ -5,7 +5,7 @@ import { Tool } from "./tools";
 import { Zone } from "./zone/zone";
 import { ASPECT_RATIO } from "./constants";
 import { EffectComposer } from "three/examples/jsm/Addons.js";
-import { OnChange } from "./onchange";
+import { CommonTag, OnChange } from "./onchange";
 import { OneStar, Star } from "./stars";
 
 export enum TileType {
@@ -78,7 +78,8 @@ export type State = {
     colourMats: Material[],
     composer?: EffectComposer,
     cash: OnChange<number>,
-    starCount: OnChange<number>
+    starCount: OnChange<number>,
+    prompt:CommonTag<string>
 };
 
 export interface RenderMode {
@@ -140,8 +141,9 @@ export function initState(): State {
         cameraAngleTarget: 0,
         defaultMat: new MeshBasicMaterial({ side: BackSide, color: new Color().setRGB(1, 1, 0) }),
         colourMats: createColouredMats(),
-        cash: new OnChange(200),
-        starCount: new OnChange(1)
+        cash: new OnChange(20000),
+        starCount: new OnChange(1),
+        prompt: new CommonTag<string>("", 10)
     }
 
     // state.map.forEachRange(2, 2, 3, 9, (x, y, v) => (v.type = TileType.ROAD));

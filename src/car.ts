@@ -9,6 +9,7 @@ const SPEED = 0.002;
 export class Car {
   public hidden = false;
   public animation?: CarAnimation;
+  public happiness:number = 0.75;
   public yaw: number = Math.PI / 2;
   // delta
   public dx: number = 1;
@@ -28,6 +29,7 @@ export class Car {
   public update(state: State, delta: number) {
     // TODO change to a while
     if (!this.hidden && !this.animation) {
+        // this.happiness = Math.max(0, this.happiness - 0.01);
       const d = this.findNextDirection(state);
       const { dx, dy } = this;
       switch (d) {
@@ -111,6 +113,10 @@ export class Car {
     // console.log("Force (no force))", fwd, left, right);
 
     const max = Math.max(fwd, bkwd, left, right);
+    if(max == BLANK_TILE.buffers[0].housing){
+      // turn around
+        return Direction.BKWD
+    }
     switch (max) {
       case fwd:
         return Direction.FWD;
@@ -142,9 +148,12 @@ function straight(car: Car, dx: number, dy: number, state:State): CarAnimation {
   const sy = car.ty + (dy < 0 ? 1 : 0);
   const ox = dx == 0 ? (dy > 0 ? RAD_SMALL : RAD_LARGE) : 0;
   const oy = dy == 0 ? (dx < 0 ? RAD_SMALL : RAD_LARGE) : 0;
-  const sMult = Math.max(2/Math.max(2,Math.abs(state.map.get(car.tx, car.ty, BLANK_TILE).buffers[state.readBuffer].traffic)),0.33)
+  const tile = state.map.get(car.tx, car.ty, BLANK_TILE);
+  const traffic = Math.abs(tile.type == TileType.GRASS ? 0 : tile.buffers[state.readBuffer].traffic); // no traffic if not a road
+  const sMult = Math.max(2 / Math.max(2, traffic), 0.33)
   let time = 0;
   return function (delta: number) {
+    let setAngle = time === 0;
     time += delta * sMult;
     car.x = sx + ox + SPEED * time * dx;
     car.y = sy + oy + SPEED * time * dy;
@@ -154,6 +163,10 @@ function straight(car: Car, dx: number, dy: number, state:State): CarAnimation {
       car.ty += dy;
       car.dx = dx;
       car.dy = dy;
+      setAngle = true;
+    }
+    if (setAngle) {
+
       if (car.dx == 0) {
         if (car.dy < 0) {      // up
           car.yaw = Math.PI;

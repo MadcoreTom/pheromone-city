@@ -115,6 +115,11 @@ export function initUI(state: State): void {
         cashElem.innerText = "Funds: $" + cash;
     });
 
+    const prompt = document.getElementById("prompt-status") as HTMLElement;
+    state.prompt.subscribe(p=>{
+        prompt.innerText = p;
+    });
+
     const starsElem = document.getElementById("star-indicator") as HTMLElement;
     state.starCount.subscribe(count => {
         starsElem.innerHTML = "";
@@ -140,13 +145,25 @@ export function initUI(state: State): void {
 
 export function updateScore(state: State) {
     const zoneToSpawnInto = state.starLevel.evaluateSpawn(state);
-    if(zoneToSpawnInto){
-            const car = new Car(zoneToSpawnInto.x, zoneToSpawnInto.y, "housing");
-            car.tx = car.x;
-            car.ty = car.y;
-            car.hidden = true;
-            state.cars.push(car);
-            zoneToSpawnInto.enter(car);
-            document.getElementById("population-status")!.textContent = `Population: ${state.cars.length}`
+    if (zoneToSpawnInto) {
+        const car = new Car(zoneToSpawnInto.x, zoneToSpawnInto.y, "housing");
+        car.tx = car.x;
+        car.ty = car.y;
+        car.hidden = true;
+        state.cars.push(car);
+        zoneToSpawnInto.enter(car);
     }
+    const pop = `Population: ${state.cars.length}`;
+    let hap = "~";
+    const happiness = state.cars.map(c => c.happiness);
+    if (state.cars.length > 0) {
+
+        const hapAvg = happiness.reduce((a, b) => a + b, 0) / happiness.length;
+        const medianHap = happiness.sort()[Math.floor(happiness.length / 2)];
+        hap = "Happiness: " + Math.floor((hapAvg + medianHap) / 2 * 100) + "%";
+    }
+    console.log("HAPPINESS", happiness.join(","))
+
+    // TODO use the OnChange thing
+    document.getElementById("population-status")!.textContent = pop + " " + hap;
 }
