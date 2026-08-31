@@ -48,3 +48,18 @@
 * 30% chance a car goes home->shop->home
 * need an empty shop, home and job, and < 50% traffic
     * > Alternatively there must be a home for all cars + 1, and a job for all cars + 1, and a shop with one current worker and no customers
+
+
+
+
+
+
+
+
+
+
+
+
+
+IF A CAR IS LOOKING FOR A SHOP TOO LONG, HAPPINESS SHOULD GO DOWN AND THEY SHOULD GIVE UP. 
+The reasons happiness rarely goes under 50% is because everyone just ends up stuck, looking for a job

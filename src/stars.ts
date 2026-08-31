@@ -105,6 +105,7 @@ export class OneStar implements Star {
             state.prompt.add("Build more jobs");
         }
         if(enoughHouses && enoughJobs){
+            state.prompt.add("");
             return housesWithAvailability[Math.floor(Math.random() * housesWithAvailability.length)];
         }
 
@@ -131,25 +132,7 @@ export class TwoStar extends OneStar {
     evaluateSpawn(state: State): null | Zone {
         // tODO do this elsewhere
         ALL_TOOLS_MAP.shop.enabled.value = true;
-        // an empty house, an empty job, and an empty shop, with <50% cars as traffic
-        // let emptyHouses = 0;
-        // let emptyJobs = 0;
-        // // let emptyShops = 0;
-        // let houses: Zone[] = [];
-        // state.zones.forEach(z => {
-        //     if (z.cars.length === 0) {
-        //         if (z.providesNeed("housing")) {
-        //             emptyHouses++;
-        //             houses.push(z);
-        //         }
-        //         if (z.providesNeed("unemployment")) {
-        //             emptyJobs++;
-        //         }
-        //         // if (z.providesNeed("shopping")) {
-        //         //     emptyShops++;
-        //         // }
-        //     }
-        // });
+ 
 
                 const housesWithAvailability : Zone[] = [];
         const jobsWithAvailability: Zone[] = [];
@@ -164,7 +147,7 @@ export class TwoStar extends OneStar {
 
         let drivingCarsLookingForHome =0;
         let drivingCarsLookingForWork =0;
-        let happiness = 0;
+        let happiness = state.cars.map(c=>c.happiness).reduce((a,b)=>a+b,0);
         state.cars.filter(c=>!c.hidden).forEach(c=>{
             if(c.target === "housing"){
                 drivingCarsLookingForHome++;
@@ -172,30 +155,29 @@ export class TwoStar extends OneStar {
             if(c.target === "unemployment"){
                 drivingCarsLookingForWork++;
             }
-            happiness += c.happiness;
         });
+
+        state.cars
 
         const enoughHouses = drivingCarsLookingForHome < housesWithAvailability.length;
         const enoughJobs = drivingCarsLookingForWork < jobsWithAvailability.length;
         const happyEnough = (happiness / state.cars.length) > 0.45; // TODO base this on the happiness metric players see in the ui
-        const trafficOk = state.cars.map(c => c.happiness).reduce((a, b) => a + b, 0) / state.cars.length <= 0.6;
 
         // reasons
         if (!enoughHouses) {
             state.prompt.add("Not enough empty houses");
         } if (!enoughJobs) {
             state.prompt.add("Not enough jobs");
-        } if (!trafficOk) {
-            state.prompt.add("Too much trafffic");
-        } if (!happyEnough) {
-            state.prompt.add("Not happy enoguh. Build shops");
+        }if (!happyEnough) {
+            state.prompt.add("Not happy enough. Build shops");
         }
-        if (enoughHouses && enoughJobs && trafficOk && happyEnough) {
+        if (enoughHouses && enoughJobs && happyEnough) {
             const carCount = state.cars.length;
             const carsOut = state.cars.filter(c => !c.hidden).length;
             if (carsOut < carCount * 0.5) {
                 return housesWithAvailability[Math.floor(Math.random() * housesWithAvailability.length)];
             }
+            state.prompt.add("");
         }
         return null;
     }
@@ -204,27 +186,27 @@ export class TwoStar extends OneStar {
         return this;
     }
     chooseNextCarTarget(state: State, car: Car): void {
-        // reduce happiness8654
+        // reduce happiness
         const tile = state.map.get(car.tx, car.ty, BLANK_TILE);
-        // Look for shops if unhappy, or 5% chance. if you can't find one, reduce happiness0
+        // Look for shops if unhappy, or 10% chance. if you can't find one, reduce happiness
         if (car.happiness < 0.5 || Math.random() < 0.1) {
-            if(tile.buffers[state.readBuffer].shopping > -999){
-                console.log("🚗 shop");
-            car.target = "shopping";
-return;
+            if (tile.buffers[state.readBuffer].shopping > -999) {
+                car.target = "shopping";
+                return;
             } else {
                 console.log("🚗⚠️ No shop found");
-                car.happiness = Math.max(car.happiness - 0.1, 0)
+            state.prompt.add("Cannot find a shop");
+                car.happiness = Math.max(car.happiness - 0.15, 0)
             }
-            // TODO if there's no shopping available (via pathing) at this point in time, reduce happiness
         }
-        
-         if (car.target == "housing") {
-                console.log("🚗 work");
+
+        if (car.target == "housing") {
+            console.log("🚗 work");
             car.target = "unemployment";
         } else {
-                console.log("🚗 home");
+            console.log("🚗 home");
             car.target = "housing";
+            car.happiness = Math.max(0,car.happiness - 0.1); // working reduces happiness
         }
     }
 }

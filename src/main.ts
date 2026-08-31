@@ -17,9 +17,7 @@ const state: State = initState();
 
 
 let lastFrameTime = 0;
-function update(state: State, time: number) {
-    const delta = Math.min(100, time - lastFrameTime);
-    lastFrameTime = time;
+function update(state: State, delta: number) {
 
     // Swap buffers
     [state.readBuffer, state.writeBuffer] = [state.writeBuffer, state.readBuffer];
@@ -97,7 +95,11 @@ function update(state: State, time: number) {
 
 function tick(time: number) {
     if (!state.paused) {
-        update(state, time);
+        const delta = Math.min(100, time - lastFrameTime);
+        lastFrameTime = time;
+        for (let i = 0; i < state.speed; i++) {
+            update(state, delta);
+        }
     }
     state.composer?.render(time);//state.scene, state.camera)
     diagnosticsUpdate();

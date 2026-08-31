@@ -93,6 +93,26 @@ export function initUI(state: State): void {
                 case "pause":
                     showPopup(state, "pause");
                     break;
+                case "speed-1":
+                    state.paused = false;
+                    state.speed = 1;
+                    console.log("SPEED",state.speed);
+                    break;
+                case "speed-2":
+                    state.paused = false;
+                    state.speed = 2;
+                    console.log("SPEED",state.speed);
+                    break;
+                case "speed-4":
+                    state.paused = false;
+                    state.speed = 4;
+                    console.log("SPEED",state.speed);
+                    break;
+                case "speed-8":
+                    state.paused = false;
+                    state.speed = 8;
+                    console.log("SPEED",state.speed);
+                    break;
             }
         }
     )
@@ -160,7 +180,8 @@ export function updateScore(state: State) {
 
         const hapAvg = happiness.reduce((a, b) => a + b, 0) / happiness.length;
         const medianHap = happiness.sort()[Math.floor(happiness.length / 2)];
-        hap = "Happiness: " + Math.floor((hapAvg + medianHap) / 2 * 100) + "%";
+        // hap = "Happiness: " + Math.floor((hapAvg + medianHap) / 2 * 100) + "%";
+        hap = "Happiness: " + Math.floor(hapAvg* 100) + "%";
     }
     console.log("HAPPINESS", happiness.join(","))
 

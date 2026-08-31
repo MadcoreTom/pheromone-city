@@ -79,7 +79,8 @@ export type State = {
     composer?: EffectComposer,
     cash: OnChange<number>,
     starCount: OnChange<number>,
-    prompt:CommonTag<string>
+    prompt:CommonTag<string>,
+    speed: number
 };
 
 export interface RenderMode {
@@ -102,6 +103,7 @@ function createColouredMats(): Material[] {
 export function initState(): State {
     const state: State = {
         paused: false,
+        speed: 1,
         starLevel: new OneStar(),
         mouse: [0, 0],
         focusedTile: [0, 0],

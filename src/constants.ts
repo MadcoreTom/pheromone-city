@@ -6,7 +6,7 @@ export const MAX_CAR_RENDER_COUNT = 999;
 export const TIMING = {
     FACTORY_WORK_MS: 8000,
     HOME_MS: 8000,
-    SHOP_SHOPPING_MS: 1000
+    SHOP_SHOPPING_MS: 2500
 } as const;
 
 export const DISPLAY_WIDTH = 1400;
